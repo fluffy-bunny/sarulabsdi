@@ -1,13 +1,30 @@
 package di
 
+import "reflect"
+
+type TypeSet map[reflect.Type]struct{}
+
+func NewTypeSet() TypeSet {
+	return TypeSet{}
+}
+func (s TypeSet) Add(rtype reflect.Type) {
+	s[rtype] = struct{}{}
+}
+func (s TypeSet) Has(rtype reflect.Type) bool {
+	_, ok := s[rtype]
+	return ok
+}
+
 // Def contains information to build and close an object inside a Container.
 type Def struct {
-	Build    func(ctn Container) (interface{}, error)
-	Close    func(obj interface{}) error
-	Name     string
-	Scope    string
-	Tags     []Tag
-	Unshared bool
+	Build            func(ctn Container) (interface{}, error)
+	Close            func(obj interface{}) error
+	Name             string
+	Scope            string
+	Tags             []Tag
+	Type             reflect.Type
+	ImplementedTypes TypeSet
+	Unshared         bool
 }
 
 // Tag can contain more specific information about a Definition.

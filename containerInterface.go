@@ -1,5 +1,7 @@
 package di
 
+import "reflect"
+
 // Container represents a dependency injection container.
 // To create a Container, you should use a Builder or another Container.
 //
@@ -42,6 +44,16 @@ type Container interface {
 	// Get is similar to SafeGet but it does not return the error.
 	// Instead it panics.
 	Get(name string) interface{}
+
+	// SafeGetByType retrieves an array of objects from the Container.
+	// The objects have to belong to this scope or a more generic one.
+	// If the objects do not already exist, it is created and saved in the Container.
+	// If the objects can not be created, it returns an error.
+	SafeGetByType(rt reflect.Type) ([]interface{}, error)
+
+	// GetByType is similar to SafeGetByType but it does not return the error.
+	// Instead it panics.
+	GetByType(rt reflect.Type) []interface{}
 
 	// Fill is similar to SafeGet but it does not return the object.
 	// Instead it fills the provided object with the value returned by SafeGet.

@@ -1,5 +1,7 @@
 package di
 
+import "reflect"
+
 // container is the implementation of the Container interface.
 type container struct {
 	// containerCore contains the container data.
@@ -36,6 +38,14 @@ func (ctn *container) SafeGet(name string) (interface{}, error) {
 
 func (ctn *container) Get(name string) interface{} {
 	return ctn.containerGetter.Get(ctn, name)
+}
+
+func (ctn *container) SafeGetByType(rt reflect.Type) ([]interface{}, error) {
+	return ctn.containerGetter.SafeGetByType(ctn, rt)
+}
+
+func (ctn *container) GetByType(rt reflect.Type) []interface{} {
+	return ctn.containerGetter.GetByType(ctn, rt)
 }
 
 func (ctn *container) Fill(name string, dst interface{}) error {

@@ -2,6 +2,7 @@ package di
 
 import (
 	"fmt"
+	"reflect"
 )
 
 // buildingChan is used internally as the value of an object while it is being built.
@@ -10,6 +11,15 @@ type buildingChan chan struct{}
 // containerGetter contains all the functions that are useful
 // to retrieve an object from a container.
 type containerGetter struct{}
+
+func (g *containerGetter) GetByType(ctn *container, rt reflect.Type) []interface{} {
+	obj, err := ctn.SafeGetByType(ctn, rt)
+	if err != nil {
+		panic(err)
+	}
+
+	return obj
+}
 
 func (g *containerGetter) Get(ctn *container, name string) interface{} {
 	obj, err := ctn.SafeGet(name)
@@ -27,6 +37,20 @@ func (g *containerGetter) Fill(ctn *container, name string, dst interface{}) err
 	}
 
 	return fill(obj, dst)
+}
+
+func (g *containerGetter) SafeGetByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
+	var result []interface{}
+	for _, def := range ctn.definitions {
+		if def.ImplementedTypes.Has(rt) {
+			obj, err := g.SafeGet(ctn, def.Name)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, obj)
+		}
+	}
+	return result, nil
 }
 
 func (g *containerGetter) SafeGet(ctn *container, name string) (interface{}, error) {

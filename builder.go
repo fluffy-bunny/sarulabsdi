@@ -3,6 +3,7 @@ package di
 import (
 	"errors"
 	"fmt"
+	"reflect"
 )
 
 // Builder can be used to create a Container.
@@ -87,6 +88,18 @@ func (b *Builder) Add(defs ...Def) error {
 func (b *Builder) add(def Def) error {
 	if def.Name == "" {
 		return errors.New("name can not be empty")
+	}
+
+	for rt := range def.ImplementedTypes {
+		if rt.Kind() == reflect.Interface {
+			if !def.Type.Implements(rt) {
+				panic(fmt.Errorf("%v does not implement %v", def.Name, rt))
+			}
+		} else {
+			if def.Type != rt {
+				panic(fmt.Errorf("%v does not implement %v", def.Name, rt))
+			}
+		}
 	}
 
 	// note that an empty scope is allowed
