@@ -13,7 +13,7 @@ type buildingChan chan struct{}
 type containerGetter struct{}
 
 func (g *containerGetter) GetByType(ctn *container, rt reflect.Type) []interface{} {
-	obj, err := ctn.SafeGetByType(ctn, rt)
+	obj, err := ctn.SafeGetByType(rt)
 	if err != nil {
 		panic(err)
 	}
