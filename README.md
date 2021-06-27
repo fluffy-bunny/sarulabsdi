@@ -29,6 +29,8 @@ When you do a ```GetByType```, don't keep calling reflect to get a type of what 
 
 ### Registration
 
+type [DEF](https://github.com/fluffy-bunny/sarulabsdi/blob/8a200c4fa3aefa0a28ddc66739aac1631f2a95aa/definition.go#L19) struct  
+
 ```go
 // Def contains information to build and close an object inside a Container.
 type Def struct {
@@ -51,7 +53,9 @@ Two new fields where added to the Def struct.
 ```Type```:              is the type of the object being registered.  
 ```ImplementedTypes```:  is the types that this object either is or implements  
 
-Both are needed because an upfront expensive reflect validation is done to make sure that everything is legit.  
+Both are needed because an upfront expensive reflect validation is done to make sure that everything is legit.    
+The following [code](https://github.com/fluffy-bunny/sarulabsdi/blob/8a200c4fa3aefa0a28ddc66739aac1631f2a95aa/builder.go#L93) will panic during a bad add.  
+
 
 ```go 
 var diServiceName = "di-transient-service"
