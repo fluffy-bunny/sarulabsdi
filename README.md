@@ -76,8 +76,6 @@ The following [code](https://github.com/fluffy-bunny/sarulabsdi/blob/909f303f513
 
 
 ```go 
-var diServiceName = "di-transient-service"
-
 type ISomething interface {
 	GetName() string
 	SetName(name string)
@@ -104,7 +102,7 @@ func AddTransientService(builder *di.Builder) {
 	types.Add(inter)
 	
 	builder.Add(di.Def{
-		Name:             diServiceName,
+		Name:             "[overidden and hidded if added by Type, can be empty]",
 		Scope:            di.App,
 		ImplementedTypes: types,
 		Type:             reflect.TypeOf(&Service{}),
