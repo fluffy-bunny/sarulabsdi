@@ -96,10 +96,6 @@ func (s *Service) GetName() string {
 	return s.name
 }
 
-func GetInterfaceReflectType(i interface{}) reflect.Type {
-	return reflect.TypeOf(i).Elem()
-}
-
 func AddTransientService(builder *di.Builder) {
 	log.Info().Msg("IoC: AddTransientService")
 
