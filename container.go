@@ -40,12 +40,20 @@ func (ctn *container) Get(name string) interface{} {
 	return ctn.containerGetter.Get(ctn, name)
 }
 
-func (ctn *container) SafeGetByType(rt reflect.Type) ([]interface{}, error) {
+func (ctn *container) SafeGetByType(rt reflect.Type) (interface{}, error) {
 	return ctn.containerGetter.SafeGetByType(ctn, rt)
 }
 
-func (ctn *container) GetByType(rt reflect.Type) []interface{} {
+func (ctn *container) GetByType(rt reflect.Type) interface{} {
 	return ctn.containerGetter.GetByType(ctn, rt)
+}
+
+func (ctn *container) SafeGetManyByType(rt reflect.Type) ([]interface{}, error) {
+	return ctn.containerGetter.SafeGetManyByType(ctn, rt)
+}
+
+func (ctn *container) GetManyByType(rt reflect.Type) []interface{} {
+	return ctn.containerGetter.GetManyByType(ctn, rt)
 }
 
 func (ctn *container) Fill(name string, dst interface{}) error {

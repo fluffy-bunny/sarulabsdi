@@ -1,10 +1,13 @@
 package di
 
 import (
+	"crypto/sha1"
 	"errors"
 	"fmt"
+	"math/rand"
 	"reflect"
 	"strings"
+	"sync"
 )
 
 // objectKey is used to mark objects.
@@ -211,4 +214,48 @@ func fill(src, dest interface{}) (err error) {
 	reflect.ValueOf(dest).Elem().Set(reflect.ValueOf(src))
 
 	return err
+}
+
+var mu sync.Mutex
+var addCount uint
+
+func incrementAddCount() uint {
+	mu.Lock()
+	defer mu.Unlock()
+	addCount = addCount + 1
+	return addCount
+}
+func GenerateUniqueServiceKey(root string) string {
+	return fmt.Sprintf("%08d.%v", incrementAddCount(), root)
+}
+func GenerateUniqueServiceKeyFromType(rt reflect.Type) string {
+	return GenerateUniqueServiceKey(rt.String())
+}
+func GenerateUniqueServiceKeyFromInterface(in interface{}) string {
+	return GenerateUniqueServiceKeyFromType(reflect.TypeOf(in).Elem())
+}
+func RandomString(n int) string {
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+
+	s := make([]rune, n)
+	for i := range s {
+		s[i] = letters[rand.Intn(len(letters))]
+	}
+	return string(s)
+}
+
+// generates a unique for from the type
+func GenerateReproducableTypeKey(rt reflect.Type) string {
+	key := rt.PkgPath() + "/" + rt.Name()
+	h := sha1.New()
+	h.Write([]byte(key))
+	bs := h.Sum(nil)
+	key = fmt.Sprintf("%x.%s", bs, rt.String())
+	return key
+}
+
+// generates a unique for from the type
+func GenerateReproducableInterfaceKey(in interface{}) string {
+	rt := reflect.TypeOf(in).Elem()
+	return GenerateReproducableTypeKey(rt)
 }

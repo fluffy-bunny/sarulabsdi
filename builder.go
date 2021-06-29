@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 )
 
 // Builder can be used to create a Container.
@@ -86,11 +87,16 @@ func (b *Builder) Add(defs ...Def) error {
 }
 
 func (b *Builder) add(def Def) error {
+	if def.Type != nil {
+		def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
+	}
+
 	if def.Name == "" {
 		return errors.New("name can not be empty")
 	}
-
+	fmt.Println(def.Name)
 	for rt := range def.ImplementedTypes {
+		fmt.Println(rt.String())
 		if rt.Kind() == reflect.Interface {
 			if !def.Type.Implements(rt) {
 				panic(fmt.Errorf("%v does not implement %v", def.Name, rt))
@@ -136,13 +142,33 @@ func (b *Builder) Build() Container {
 
 	defs := b.Definitions()
 
-	for name, def := range defs {
+	rtDefMap := make(map[string]deflist)
+
+	// efficiency map.  Build out a fast lookup for types to defs
+	for name, _ := range defs {
+		def := defs[name]
+
 		if def.Scope == "" {
 			def.Scope = b.scopes[0]
 			defs[name] = def
 		}
+
+		for rt := range def.ImplementedTypes {
+			var key string
+			if rt.Kind() == reflect.Interface {
+				key = GenerateReproducableTypeKey(rt)
+			} else {
+				key = GenerateReproducableTypeKey(rt.Elem())
+			}
+			fmt.Println(key)
+			rtDefMap[key] = append(rtDefMap[key], &def)
+		}
 	}
 
+	for k, _ := range rtDefMap {
+		eList := rtDefMap[k]
+		sort.Sort(deflist(eList))
+	}
 	return &container{
 		containerCore: &containerCore{
 			scopes:       b.scopes,
@@ -152,6 +178,7 @@ func (b *Builder) Build() Container {
 			children:     map[*containerCore]struct{}{},
 			objects:      map[objectKey]interface{}{},
 			dependencies: newGraph(),
+			typeDefMap:   rtDefMap,
 		},
 	}
 }

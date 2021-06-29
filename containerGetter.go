@@ -12,8 +12,16 @@ type buildingChan chan struct{}
 // to retrieve an object from a container.
 type containerGetter struct{}
 
-func (g *containerGetter) GetByType(ctn *container, rt reflect.Type) []interface{} {
+func (g *containerGetter) GetByType(ctn *container, rt reflect.Type) interface{} {
 	obj, err := ctn.SafeGetByType(rt)
+	if err != nil {
+		panic(err)
+	}
+
+	return obj
+}
+func (g *containerGetter) GetManyByType(ctn *container, rt reflect.Type) []interface{} {
+	obj, err := ctn.SafeGetManyByType(rt)
 	if err != nil {
 		panic(err)
 	}
@@ -39,16 +47,37 @@ func (g *containerGetter) Fill(ctn *container, name string, dst interface{}) err
 	return fill(obj, dst)
 }
 
-func (g *containerGetter) SafeGetByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
+func (g *containerGetter) SafeGetByType(ctn *container, rt reflect.Type) (interface{}, error) {
 	var result []interface{}
-	for _, def := range ctn.definitions {
-		if def.ImplementedTypes.Has(rt) {
-			obj, err := g.SafeGet(ctn, def.Name)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, obj)
+	key := GenerateReproducableTypeKey(rt)
+	defs, ok := ctn.typeDefMap[key]
+	if !ok {
+		return result, nil
+	}
+	for _, def := range defs {
+		obj, err := g.SafeGet(ctn, def.Name)
+		if err != nil {
+			return nil, err
 		}
+		return obj, err
+	}
+	return nil, fmt.Errorf("no item of type exists")
+}
+
+func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
+	var result []interface{}
+	key := GenerateReproducableTypeKey(rt)
+	defs, ok := ctn.typeDefMap[key]
+	if !ok {
+		return result, nil
+	}
+	for _, def := range defs {
+		obj, err := g.SafeGet(ctn, def.Name)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, obj)
+
 	}
 	return result, nil
 }

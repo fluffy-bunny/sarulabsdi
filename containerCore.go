@@ -1,6 +1,22 @@
 package di
 
-import "sync"
+import (
+	"sync"
+)
+
+type deflist []*Def
+
+func (e deflist) Len() int {
+	return len(e)
+}
+
+func (e deflist) Less(i, j int) bool {
+	return e[i].Name > e[j].Name
+}
+
+func (e deflist) Swap(i, j int) {
+	e[i], e[j] = e[j], e[i]
+}
 
 // containerCore contains the data of a Container.
 // But it can not build objects on its own.
@@ -18,6 +34,7 @@ type containerCore struct {
 	lastUniqueID    int
 	deleteIfNoChild bool
 	dependencies    *graph
+	typeDefMap      map[string]deflist
 }
 
 func (ctn *containerCore) Definitions() map[string]Def {

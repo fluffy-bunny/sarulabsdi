@@ -45,15 +45,25 @@ type Container interface {
 	// Instead it panics.
 	Get(name string) interface{}
 
-	// SafeGetByType retrieves an array of objects from the Container.
-	// The objects have to belong to this scope or a more generic one.
-	// If the objects do not already exist, it is created and saved in the Container.
-	// If the objects can not be created, it returns an error.
-	SafeGetByType(rt reflect.Type) ([]interface{}, error)
+	// SafeGetByType retrieves the last object added from the Container.
+	// The object has to belong to this scope or a more generic one.
+	// If the object does not already exist, it is created and saved in the Container.
+	// If the object can not be created, it returns an error.
+	SafeGetByType(rt reflect.Type) (interface{}, error)
 
 	// GetByType is similar to SafeGetByType but it does not return the error.
 	// Instead it panics.
-	GetByType(rt reflect.Type) []interface{}
+	GetByType(rt reflect.Type) interface{}
+
+	// SafeGetManyByType retrieves an array of objects from the Container.
+	// The objects have to belong to this scope or a more generic one.
+	// If the objects do not already exist, it is created and saved in the Container.
+	// If the objects can not be created, it returns an error.
+	SafeGetManyByType(rt reflect.Type) ([]interface{}, error)
+
+	// GetManyByType is similar to SafeGetByType but it does not return the error.
+	// Instead it panics.
+	GetManyByType(rt reflect.Type) []interface{}
 
 	// Fill is similar to SafeGet but it does not return the object.
 	// Instead it fills the provided object with the value returned by SafeGet.
