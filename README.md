@@ -104,7 +104,7 @@ func AddTransientService(builder *di.Builder) {
 	builder.Add(di.Def{
 		Name:             "[overidden and hidded if added by Type, can be empty]",
 		Scope:            di.App,
-		ImplementedTypes: types,
+		ImplementedTypes: types, //[optional] only if you want to claim that this object also implements these types.
 		Type:             reflect.TypeOf(&Service{}),
 		Unshared: true,
 		Build: func(ctn di.Container) (interface{}, error) {
