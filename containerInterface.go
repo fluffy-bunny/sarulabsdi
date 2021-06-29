@@ -61,7 +61,7 @@ type Container interface {
 	// If the objects can not be created, it returns an error.
 	SafeGetManyByType(rt reflect.Type) ([]interface{}, error)
 
-	// GetManyByType is similar to SafeGetByType but it does not return the error.
+	// GetManyByType is similar to SafeGetManyByType but it does not return the error.
 	// Instead it panics.
 	GetManyByType(rt reflect.Type) []interface{}
 
