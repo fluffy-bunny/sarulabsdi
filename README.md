@@ -53,10 +53,10 @@ type [DEF](https://github.com/fluffy-bunny/sarulabsdi/blob/8a200c4fa3aefa0a28ddc
 type Def struct {
 	Build            func(ctn Container) (interface{}, error)
 	Close            func(obj interface{}) error
-	Name             string
+	Name             string //[ignored] if Type is used this is overriden and hidden.
 	Scope            string
 	Tags             []Tag
-	Type             reflect.Type
+	Type             reflect.Type //[optional] only if you want to claim that this object also implements these types.
 	ImplementedTypes TypeSet
 	Unshared         bool
 }
