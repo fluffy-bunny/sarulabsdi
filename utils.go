@@ -243,10 +243,14 @@ func RandomString(n int) string {
 	}
 	return string(s)
 }
+func getTypeFullPath(rt reflect.Type) string {
+	fullPath := rt.PkgPath() + "/" + rt.Name()
+	return fullPath
+}
 
 // generates a unique for from the type
 func GenerateReproducableTypeKey(rt reflect.Type) string {
-	key := rt.PkgPath() + "/" + rt.Name()
+	key := getTypeFullPath(rt)
 	h := sha1.New()
 	h.Write([]byte(key))
 	bs := h.Sum(nil)
@@ -254,8 +258,11 @@ func GenerateReproducableTypeKey(rt reflect.Type) string {
 	return key
 }
 
-// generates a unique for from the type
+// generates a reproducable key for from the type
 func GenerateReproducableInterfaceKey(in interface{}) string {
 	rt := reflect.TypeOf(in).Elem()
 	return GenerateReproducableTypeKey(rt)
+}
+func GetInterfaceReflectType(i interface{}) reflect.Type {
+	return reflect.TypeOf(i).Elem()
 }

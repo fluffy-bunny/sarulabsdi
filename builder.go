@@ -76,6 +76,7 @@ func (b *Builder) IsDefined(name string) bool {
 // It returns an error if a definition can not be added.
 // If a definition with the same name has already been added,
 // it will be replaced by the new one, as if the first one never existed.
+// If added by type, a unique name is generated for each
 func (b *Builder) Add(defs ...Def) error {
 	for _, def := range defs {
 		if err := b.add(def); err != nil {
@@ -89,21 +90,25 @@ func (b *Builder) Add(defs ...Def) error {
 func (b *Builder) add(def Def) error {
 	if def.Type != nil {
 		def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
+		if def.ImplementedTypes == nil {
+			def.ImplementedTypes = NewTypeSet()
+		}
+		// automatically add the type of the root object
+		def.ImplementedTypes.Add(def.Type)
 	}
 
 	if def.Name == "" {
 		return errors.New("name can not be empty")
 	}
-	fmt.Println(def.Name)
+
 	for rt := range def.ImplementedTypes {
-		fmt.Println(rt.String())
 		if rt.Kind() == reflect.Interface {
 			if !def.Type.Implements(rt) {
-				panic(fmt.Errorf("%v does not implement %v", def.Name, rt))
+				return fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt))
 			}
 		} else {
 			if def.Type != rt {
-				panic(fmt.Errorf("%v does not implement %v", def.Name, rt))
+				return fmt.Errorf("%v is not of type %v", def.Name, getTypeFullPath(rt))
 			}
 		}
 	}
@@ -145,7 +150,7 @@ func (b *Builder) Build() Container {
 	rtDefMap := make(map[string]deflist)
 
 	// efficiency map.  Build out a fast lookup for types to defs
-	for name, _ := range defs {
+	for name := range defs {
 		def := defs[name]
 
 		if def.Scope == "" {
@@ -160,12 +165,11 @@ func (b *Builder) Build() Container {
 			} else {
 				key = GenerateReproducableTypeKey(rt.Elem())
 			}
-			fmt.Println(key)
 			rtDefMap[key] = append(rtDefMap[key], &def)
 		}
 	}
 
-	for k, _ := range rtDefMap {
+	for k := range rtDefMap {
 		eList := rtDefMap[k]
 		sort.Sort(deflist(eList))
 	}

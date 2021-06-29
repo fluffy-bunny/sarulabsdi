@@ -48,20 +48,18 @@ func (g *containerGetter) Fill(ctn *container, name string, dst interface{}) err
 }
 
 func (g *containerGetter) SafeGetByType(ctn *container, rt reflect.Type) (interface{}, error) {
-	var result []interface{}
 	key := GenerateReproducableTypeKey(rt)
 	defs, ok := ctn.typeDefMap[key]
-	if !ok {
-		return result, nil
-	}
-	for _, def := range defs {
-		obj, err := g.SafeGet(ctn, def.Name)
-		if err != nil {
-			return nil, err
+	if ok {
+		for _, def := range defs {
+			obj, err := g.SafeGet(ctn, def.Name)
+			if err != nil {
+				return nil, err
+			}
+			return obj, err
 		}
-		return obj, err
 	}
-	return nil, fmt.Errorf("no item of type exists")
+	return nil, fmt.Errorf("could not get type of `%s` because the definition does not exist", getTypeFullPath(rt))
 }
 
 func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
@@ -69,7 +67,7 @@ func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]
 	key := GenerateReproducableTypeKey(rt)
 	defs, ok := ctn.typeDefMap[key]
 	if !ok {
-		return result, nil
+		return result, fmt.Errorf("could not get types of `%s` because the definition does not exist", getTypeFullPath(rt))
 	}
 	for _, def := range defs {
 		obj, err := g.SafeGet(ctn, def.Name)

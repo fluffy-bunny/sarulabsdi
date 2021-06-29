@@ -2,6 +2,7 @@ package di
 
 import (
 	"errors"
+	"reflect"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -62,6 +63,389 @@ func TestSafeGet(t *testing.T) {
 	require.Nil(t, err)
 	require.Equal(t, &mockObject{}, obj.(*mockObject))
 	require.True(t, obj == objBis)
+}
+
+func TestAddByType_Unshared_Implements_MustError(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it doesn't support
+	types := NewTypeSet()
+	inter := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(inter)
+
+	// add mockObject
+	err := b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject{}, nil
+		},
+		Unshared: true,
+	})
+	require.NotNil(t, err)
+
+	var app = b.Build()
+
+	// try to get mockObject
+	rt := reflect.TypeOf(&mockObject{}).Elem()
+	_, err = app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+}
+func TestAddByType_Unshared_ImplementedTypes_NoPanic(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it doesn't support
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+
+	defer func() {
+		require.Nil(t, recover(), "add and build should not panic")
+	}()
+
+	// add mockObject
+	err := b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject{}, nil
+		},
+		Unshared: true,
+	})
+	var app = b.Build()
+
+	_, err = app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+}
+func TestTypedObject_Unshared_OneAdded_FailedRetrieve(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// add mockObject
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject{}, nil
+		},
+		Unshared: true,
+	})
+
+	var app = b.Build()
+
+	// try to get mockObject2
+	rt := reflect.TypeOf(&mockObject2{}).Elem()
+	_, err := app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+	// try to get IGetterSetter
+	rt = GetInterfaceReflectType((*IGetterSetter)(nil))
+	_, err = app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+}
+
+func TestTypedObject_Unshared_OneAdded_OneRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject{}, nil
+		},
+		Unshared: true,
+	})
+
+	var app = b.Build()
+	rt := reflect.TypeOf(&mockObject{}).Elem()
+	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	obj2, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, obj1 == obj2)
+}
+
+func TestTypedObject_Unshared_ImplementedTypes_OneAdded_OneRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it does support
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+
+	err := b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1234,
+			}, nil
+		},
+		Unshared: true,
+	})
+	require.Nil(t, err)
+
+	var app = b.Build()
+
+	// get the object by its interface
+	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	obj2, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, obj1 == obj2)
+
+	require.Equal(t, 1234, obj1.(IGetterSetter).GetValue())
+	require.Equal(t, 1234, obj2.(IGetterSetter).GetValue())
+
+	obj1.(IGetterSetter).SetValue(5555)
+	require.Equal(t, 5555, obj1.(IGetterSetter).GetValue())
+	require.Equal(t, 1234, obj2.(IGetterSetter).GetValue())
+
+}
+
+func TestTypedObject_Unshared_ImplementedTypes_ManyAdded_OneRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it does support
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+
+	err := b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1234,
+			}, nil
+		},
+		Unshared: true,
+	})
+	require.Nil(t, err)
+
+	err = b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 9999,
+			}, nil
+		},
+		Unshared: true,
+	})
+	require.Nil(t, err)
+
+	var app = b.Build()
+
+	// get the object by its interface
+	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	obj2, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, obj1 == obj2)
+
+	require.Equal(t, 9999, obj1.(IGetterSetter).GetValue())
+	require.Equal(t, 9999, obj2.(IGetterSetter).GetValue())
+
+	obj1.(IGetterSetter).SetValue(5555)
+	require.Equal(t, 5555, obj1.(IGetterSetter).GetValue())
+	require.Equal(t, 9999, obj2.(IGetterSetter).GetValue())
+
+}
+
+func TestTypedObjects_Unshared_ImplementedTypes_Failed_ManyRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	// Add 2 of the same type
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{}, nil
+		},
+		Unshared: true,
+	})
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{}, nil
+		},
+		Unshared: true,
+	})
+
+	// The last object added
+
+	var app = b.Build()
+
+	_, err := app.SafeGetManyByType(rt)
+	require.NotNil(t, err)
+
+}
+
+func TestTypedObjects_Unshared_ImplementedTypes_ManyAdded_ManyRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it does support
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+
+	expected1 := 1234
+	expected2 := 9999
+	expected3 := 5555
+
+	// Add 2 of the same type
+	b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: expected1,
+			}, nil
+		},
+		Unshared: true,
+	})
+	b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: expected2,
+			}, nil
+		},
+		Unshared: true,
+	})
+
+	// The last object added
+
+	var app = b.Build()
+
+	many1, err := app.SafeGetManyByType(rt)
+	require.Nil(t, err)
+	require.Equal(t, 2, len(many1))
+
+	many2, err := app.SafeGetManyByType(rt)
+	require.Nil(t, err)
+	require.Equal(t, 2, len(many2))
+
+	// should retrieve different object every time
+	require.False(t, many1[0] == many1[1])
+	require.False(t, many2[0] == many2[1])
+
+	require.False(t, many1[0] == many2[0])
+	require.False(t, many1[1] == many2[1])
+
+	// last one added must be first in the list returned
+
+	require.Equal(t, expected2, many1[0].(IGetterSetter).GetValue())
+	require.Equal(t, expected1, many1[1].(IGetterSetter).GetValue())
+
+	many1[0].(IGetterSetter).SetValue(expected3)
+	require.Equal(t, expected3, many1[0].(IGetterSetter).GetValue())
+	require.Equal(t, expected1, many1[1].(IGetterSetter).GetValue())
+}
+
+func TestTypedObjects_Unshared_ManyAdded_OneRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// Add 2 of the same type
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 2,
+			}, nil
+		},
+		Unshared: true,
+	})
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1,
+			}, nil
+		},
+		Unshared: true,
+	})
+
+	// The last object added
+
+	var app = b.Build()
+
+	// get the type of the object we want to retrieve
+	rt := reflect.TypeOf(&mockObject2{}).Elem()
+
+	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	obj2, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, obj1 == obj2)
+
+	// value must be of the last one added
+	exected := 1
+	require.Equal(t, exected, obj1.(*mockObject2).Value)
+	require.Equal(t, exected, obj2.(*mockObject2).Value)
+
+}
+func TestTypedObjects_Unshared_ManyAdded_ManyRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// Add 2 of the same type
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 2,
+			}, nil
+		},
+		Unshared: true,
+	})
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject2{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1,
+			}, nil
+		},
+		Unshared: true,
+	})
+
+	// The last object added
+
+	var app = b.Build()
+
+	// get the type of the object we want to retrieve
+	rt := reflect.TypeOf(&mockObject2{}).Elem()
+
+	many1, err := app.SafeGetManyByType(rt)
+	require.Nil(t, err)
+
+	many2, err := app.SafeGetManyByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, many1[0] == many1[1])
+	require.False(t, many2[0] == many2[1])
+
+	require.False(t, many1[0] == many2[0])
+	require.False(t, many1[1] == many2[1])
+
+	// last one added must be first in the list returned
+	require.Equal(t, 1, many1[0].(*mockObject2).Value)
+	require.Equal(t, 2, many1[1].(*mockObject2).Value)
+
 }
 
 func TestUnsharedObjects(t *testing.T) {

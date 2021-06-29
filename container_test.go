@@ -11,6 +11,20 @@ type mockObject struct {
 	sync.Mutex
 	Closed bool
 }
+type IGetterSetter interface {
+	GetValue() int
+	SetValue(value int)
+}
+type mockObject2 struct {
+	Value int
+}
+
+func (m *mockObject2) GetValue() int {
+	return m.Value
+}
+func (m *mockObject2) SetValue(value int) {
+	m.Value = value
+}
 
 type mockObjectWithDependency struct {
 	Object *mockObject
