@@ -7,19 +7,36 @@ The following are non breaking changes to sarulabs/di.
 
 ## SafeGetByType  
 ```go
-// SafeGetByType retrieves an array of objects from the Container.
-// The objects have to belong to this scope or a more generic one.
-// If the objects do not already exist, it is created and saved in the Container.
-// If the objects can not be created, it returns an error.
-SafeGetByType(rt reflect.Type) ([]interface{}, error)
+// SafeGetByType retrieves the last object added from the Container.
+// The object has to belong to this scope or a more generic one.
+// If the object does not already exist, it is created and saved in the Container.
+// If the object can not be created, it returns an error.
+SafeGetByType(rt reflect.Type) (interface{}, error)
 ```
 
 ## GetByType  
 ```go
 // GetByType is similar to SafeGetByType but it does not return the error.
 // Instead it panics.
-GetByType(rt reflect.Type) []interface{}
+GetByType(rt reflect.Type) interface{}
 ```
+
+## SafeGetManyByType  
+```go
+// SafeGetManyByType retrieves an array of objects from the Container.
+// The objects have to belong to this scope or a more generic one.
+// If the objects do not already exist, it is created and saved in the Container.
+// If the objects can not be created, it returns an error.
+SafeGetManyByType(rt reflect.Type) ([]interface{}, error)
+```
+
+## GetManyByType  
+```go
+// GetManyByType is similar to SafeGetManyByType but it does not return the error.
+// Instead it panics.
+GetManyByType(rt reflect.Type) []interface{}
+```
+
 Just like dotnetcore, I would like to register a bunch of services that all implement the same interface.  I would like to get back an array of all registered objects, and to do that I need to ask for them by type
 
 For efficiency, type validation is done during registration.  After that it should just be lookups.   
@@ -53,8 +70,9 @@ Two new fields where added to the Def struct.
 ```Type```:              is the type of the object being registered.  
 ```ImplementedTypes```:  is the types that this object either is or implements  
 
-Both are needed because an upfront expensive reflect validation is done to make sure that everything is legit.    
-The following [code](https://github.com/fluffy-bunny/sarulabsdi/blob/8a200c4fa3aefa0a28ddc66739aac1631f2a95aa/builder.go#L93) will panic during a bad add.  
+Only the ```Type``` option is needed to register and it is automatically added as an implemented type.   The ```ImplementedTypes``` option is primarily for claiming that the added type supports a given set of interfaces.  If this option is added, the original ```Type``` is automatically added to the ```ImplementedTypes``` set.  
+
+The following [code](https://github.com/fluffy-bunny/sarulabsdi/blob/909f303f513ce84953164cc78b311a57ae959544/builder.go#L90) will return an error if the added type **DOES NOT** implemented the ```ImplementedTypes``` that were claimed. 
 
 
 ```go 
@@ -86,10 +104,9 @@ func AddTransientService(builder *di.Builder) {
 	log.Info().Msg("IoC: AddTransientService")
 
 	types := di.NewTypeSet()
-	inter := GetInterfaceReflectType((*exampleServices.ISomething)(nil))
+	inter := di.GetInterfaceReflectType((*exampleServices.ISomething)(nil))
 	types.Add(inter)
-	types.Add(reflect.TypeOf(&Service{}))
-
+	
 	builder.Add(di.Def{
 		Name:             diServiceName,
 		Scope:            di.App,
@@ -109,9 +126,9 @@ func AddTransientService(builder *di.Builder) {
 
 ```go
 // please put this into a lookup map
-inter := GetInterfaceReflectType((*exampleServices.ISomething)(nil))
+inter := di.GetInterfaceReflectType((*exampleServices.ISomething)(nil))
 
-dd := ctn.GetByType(inter)
+dd := ctn.GetManyByType(inter)
 for _, d := range dd {
   ds := d.(exampleServices.ISomething)
   ds.SetName("rabbit")
