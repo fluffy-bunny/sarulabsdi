@@ -65,6 +65,63 @@ func TestSafeGet(t *testing.T) {
 	require.True(t, obj == objBis)
 }
 
+func TestGetByType_FromSubContainer(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// claim that the added type implements an interface it doesn't support
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+
+	defer func() {
+		require.Nil(t, recover(), "add and build should not panic")
+	}()
+
+	// add mockObject
+	err := b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Scope:            Request,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1,
+			}, nil
+		},
+		Unshared: true,
+	})
+	err = b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Scope:            Request,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 2,
+			}, nil
+		},
+		Unshared: true,
+	})
+	var app = b.Build()
+
+	_, err = app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+	_, err = app.SafeGetManyByType(rt)
+	require.NotNil(t, err)
+
+	sub, err := app.SubContainer()
+	require.Nil(t, err)
+	obj, err := sub.SafeGetByType(rt)
+	require.Nil(t, err)
+	require.Equal(t, 2, obj.(*mockObject2).Value)
+
+	retObjs, err := sub.SafeGetManyByType(rt)
+	require.Nil(t, err)
+	require.Equal(t, 2, len(retObjs))
+	// make sure order is still preserved
+	require.Equal(t, 2, retObjs[0].(*mockObject2).Value)
+	require.Equal(t, 1, retObjs[1].(*mockObject2).Value)
+
+}
 func TestAddByType_Unshared_Implements_MustError(t *testing.T) {
 	b, _ := NewBuilder()
 
@@ -109,7 +166,7 @@ func TestAddByType_Unshared_ImplementedTypes_NoPanic(t *testing.T) {
 		Type:             reflect.TypeOf(&mockObject2{}),
 		ImplementedTypes: types,
 		Build: func(ctn Container) (interface{}, error) {
-			return &mockObject{}, nil
+			return &mockObject2{}, nil
 		},
 		Unshared: true,
 	})
@@ -144,7 +201,6 @@ func TestTypedObject_Unshared_OneAdded_FailedRetrieve(t *testing.T) {
 	require.NotNil(t, err)
 
 }
-
 func TestTypedObject_Unshared_OneAdded_OneRetrieved(t *testing.T) {
 	b, _ := NewBuilder()
 
