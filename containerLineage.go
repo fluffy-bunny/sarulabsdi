@@ -38,6 +38,8 @@ func (l *containerLineage) SubContainer(ctn *container) (Container, error) {
 
 	ctn.children[child.containerCore] = struct{}{}
 
+	child.typeDefMap = ctn.typeDefMap
+
 	ctn.m.Unlock()
 
 	return child, nil
