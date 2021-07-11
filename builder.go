@@ -128,6 +128,17 @@ func (b *Builder) add(def Def) error {
 	return nil
 }
 
+// SetByType is a shortcut to add a definition for an already built object.
+func (b *Builder) SetByType(rType reflect.Type, implementedTypes TypeSet, obj interface{}) error {
+	return b.add(Def{
+		Type:             rType,
+		ImplementedTypes: implementedTypes,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj, nil
+		},
+	})
+}
+
 // Set is a shortcut to add a definition for an already built object.
 func (b *Builder) Set(name string, obj interface{}) error {
 	return b.add(Def{
