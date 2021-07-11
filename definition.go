@@ -7,6 +7,11 @@ type TypeSet map[reflect.Type]struct{}
 func NewTypeSet() TypeSet {
 	return TypeSet{}
 }
+func (s TypeSet) Remove(rtype reflect.Type) {
+	if s.Has(rtype) {
+		delete(s, rtype)
+	}
+}
 func (s TypeSet) Add(rtype reflect.Type) {
 	s[rtype] = struct{}{}
 }

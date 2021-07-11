@@ -127,16 +127,19 @@ func (b *Builder) add(def Def) error {
 
 	return nil
 }
-
-// SetByType is a shortcut to add a definition for an already built object.
-func (b *Builder) SetByType(rType reflect.Type, implementedTypes TypeSet, obj interface{}) error {
-	return b.add(Def{
-		Type:             rType,
-		ImplementedTypes: implementedTypes,
-		Build: func(ctn Container) (interface{}, error) {
-			return obj, nil
-		},
-	})
+func (b *Builder) RemoveAllByType(rType reflect.Type) {
+	// DefMap houses data by value so we need to buid a new map with
+	// the changes.
+	defMap := DefMap{}
+	for key, def := range b.definitions {
+		// if the rType is the main def type we do not keep it
+		if rType != def.Type {
+			// only keep  defs where we potential change implemented types
+			def.ImplementedTypes.Remove(rType)
+			defMap[key] = def // add the changed def back
+		}
+	}
+	b.definitions = defMap
 }
 
 // Set is a shortcut to add a definition for an already built object.

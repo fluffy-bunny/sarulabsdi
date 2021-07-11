@@ -47,7 +47,11 @@ func (g *containerGetter) Fill(ctn *container, name string, dst interface{}) err
 	return fill(obj, dst)
 }
 
-func (g *containerGetter) SafeGetByType(ctn *container, rt reflect.Type) (interface{}, error) {
+func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (interface{}, error) {
+	rt := rtIn
+	if rt.Kind() == reflect.Ptr {
+		rt = rt.Elem()
+	}
 	key := GenerateReproducableTypeKey(rt)
 	defs, ok := ctn.typeDefMap[key]
 	if ok {

@@ -1,6 +1,7 @@
 package di
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -121,6 +122,71 @@ func TestSet(t *testing.T) {
 	require.Equal(t, "value", ctn.Get("key").(string))
 }
 
+type TestStruct struct {
+	Name string
+}
+
+func (s *TestStruct) GetName() string {
+	return s.Name
+}
+
+type ISomething interface {
+	GetName() string
+}
+
+var rTypeTestStruct = reflect.TypeOf(&TestStruct{})
+
+func TestRemoveAll(t *testing.T) {
+
+	b, _ := NewBuilder()
+
+	var err error
+	obj := &TestStruct{
+		Name: "hello",
+	}
+	types := NewTypeSet()
+	inter := GetInterfaceReflectType((*ISomething)(nil))
+	types.Add(inter)
+
+	err = b.Add(Def{
+		Scope:            App,
+		Type:             rTypeTestStruct,
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj, nil
+		},
+	})
+	require.Nil(t, err)
+
+	b.RemoveAllByType(rTypeTestStruct)
+	ctn := b.Build()
+
+	obj2, err := ctn.SafeGetByType(rTypeTestStruct)
+	require.Nil(t, obj2)
+	require.NotNil(t, err)
+
+	b, _ = NewBuilder()
+	types = NewTypeSet()
+	types.Add(inter)
+	err = b.Add(Def{
+		Scope:            App,
+		Type:             rTypeTestStruct,
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj, nil
+		},
+	})
+	b.RemoveAllByType(inter)
+	ctn = b.Build()
+
+	obj2, err = ctn.SafeGetByType(rTypeTestStruct.Elem())
+	require.NotNil(t, obj2)
+	require.Nil(t, err)
+
+	obj2, err = ctn.SafeGetByType(inter)
+	require.Nil(t, obj2)
+	require.NotNil(t, err)
+}
 func TestBuild(t *testing.T) {
 	ctn := (&Builder{}).Build()
 	require.Nil(t, ctn, "should have at least one scope to use Build")
