@@ -104,11 +104,11 @@ func (b *Builder) add(def Def) error {
 	for rt := range def.ImplementedTypes {
 		if rt.Kind() == reflect.Interface {
 			if !def.Type.Implements(rt) {
-				return fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt))
+				panic(fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt)))
 			}
 		} else {
 			if def.Type != rt {
-				return fmt.Errorf("%v is not of type %v", def.Name, getTypeFullPath(rt))
+				panic(fmt.Errorf("%v is not of type %v", def.Name, getTypeFullPath(rt)))
 			}
 		}
 	}

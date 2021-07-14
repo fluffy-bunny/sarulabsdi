@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -122,7 +123,9 @@ func TestGetByType_FromSubContainer(t *testing.T) {
 	require.Equal(t, 1, retObjs[1].(*mockObject2).Value)
 
 }
-func TestAddByType_Unshared_Implements_MustError(t *testing.T) {
+
+func TestAddByType_ImplementedTypes_MustPanic(t *testing.T) {
+
 	b, _ := NewBuilder()
 
 	// claim that the added type implements an interface it doesn't support
@@ -130,22 +133,27 @@ func TestAddByType_Unshared_Implements_MustError(t *testing.T) {
 	inter := GetInterfaceReflectType((*IGetterSetter)(nil))
 	types.Add(inter)
 
-	// add mockObject
-	err := b.Add(Def{
-		Type:             reflect.TypeOf(&mockObject{}),
-		ImplementedTypes: types,
-		Build: func(ctn Container) (interface{}, error) {
-			return &mockObject{}, nil
-		},
-		Unshared: true,
+	assert.Panics(t, func() {
+		b.Add(Def{
+			Type:             reflect.TypeOf(&mockObject{}),
+			ImplementedTypes: types,
+			Build: func(ctn Container) (interface{}, error) {
+				return &mockObject{}, nil
+			},
+			Unshared: true,
+		})
 	})
-	require.NotNil(t, err)
+}
+
+func TestSafeGetByType_Empty_container(t *testing.T) {
+
+	b, _ := NewBuilder()
 
 	var app = b.Build()
 
 	// try to get mockObject
 	rt := reflect.TypeOf(&mockObject{}).Elem()
-	_, err = app.SafeGetByType(rt)
+	_, err := app.SafeGetByType(rt)
 	require.NotNil(t, err)
 
 }
@@ -162,7 +170,7 @@ func TestAddByType_Unshared_ImplementedTypes_NoPanic(t *testing.T) {
 	}()
 
 	// add mockObject
-	err := b.Add(Def{
+	b.Add(Def{
 		Type:             reflect.TypeOf(&mockObject2{}),
 		ImplementedTypes: types,
 		Build: func(ctn Container) (interface{}, error) {
@@ -172,7 +180,7 @@ func TestAddByType_Unshared_ImplementedTypes_NoPanic(t *testing.T) {
 	})
 	var app = b.Build()
 
-	_, err = app.SafeGetByType(rt)
+	_, err := app.SafeGetByType(rt)
 	require.Nil(t, err)
 
 }
