@@ -130,5 +130,40 @@ for _, d := range dd {
 }
 
 ```
+# NON-Interface Types
+When you register a non-interface type, like a struct, we use the following;
+```go
+Type: reflect.TypeOf(&mockObject{}),
+```
+but to retrieve the object, a .Elem() is needed for the lookup.
+```go
+rt := reflect.TypeOf(&mockObject2{}).Elem()
+```
+```go
+func TestTypedObject_Unshared_OneAdded_FailedRetrieve(t *testing.T) {
+	b, _ := NewBuilder()
 
+	// add mockObject
+	b.Add(Def{
+		Type: reflect.TypeOf(&mockObject{}),
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject{}, nil
+		},
+		Unshared: true,
+	})
+
+	var app = b.Build()
+
+	// try to get mockObject2
+	rt := reflect.TypeOf(&mockObject2{}).Elem()
+	_, err := app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+	// try to get IGetterSetter
+	rt = GetInterfaceReflectType((*IGetterSetter)(nil))
+	_, err = app.SafeGetByType(rt)
+	require.NotNil(t, err)
+
+}
+```
 
