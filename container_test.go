@@ -26,6 +26,11 @@ func (m *mockObject2) SetValue(value int) {
 	m.Value = value
 }
 
+type mockObject3 struct {
+	GetterSetter  IGetterSetter   `inject:""`
+	GetterSetters []IGetterSetter `inject:""`
+}
+
 type mockObjectWithDependency struct {
 	Object *mockObject
 }
