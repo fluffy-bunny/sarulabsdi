@@ -174,3 +174,24 @@ func TestTypedObject_Unshared_OneAdded_FailedRetrieve(t *testing.T) {
   require.NotNil(t, err)
 }
 ```
+
+## Default BuildByType
+
+Its more expensive but you don't need a BUILD func to create the objects if the object and its dependencies are all registred by type.  
+
+```go
+type mockObject3 struct {
+	GetterSetter  IGetterSetter   `inject:""`
+	GetterSetters []IGetterSetter `inject:""`
+}
+```
+
+This assumes that there exists a registration for ```IGetterSetter```.  
+
+```go
+b.Add(Def{
+		Type:     reflect.TypeOf(&mockObject3{}),
+		Unshared: true,
+	})
+```  
+
