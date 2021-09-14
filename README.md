@@ -61,18 +61,21 @@ type Def struct {
   Type             reflect.Type //[optional] only if you want to claim that this object also implements these types.
   ImplementedTypes TypeSet
   Unshared         bool
+  SafeInject       bool // will not panic when using the default reflect builder when downstream dependencies are missing
 }
 ```
 
-Two new fields where added to the Def struct.  
+New fields where added to the Def struct.  
 
 ```go
   Type             reflect.Type
   ImplementedTypes TypeSet
+  SafeInject       bool  
 ```
 
 ```Type```:              is the type of the object being registered.  
 ```ImplementedTypes```:  is the types that this object either is or implements  
+```SafeInject```:        will not panic when using the default reflect builder when downstream dependencies are missing
 
 Only the ```Type``` option is needed to register and it is automatically added as an implemented type.   The ```ImplementedTypes``` option is primarily for claiming that the added type supports a given set of interfaces.  If this option is added, the original ```Type``` is automatically added to the ```ImplementedTypes``` set.  
 
@@ -190,6 +193,7 @@ This assumes that there exists a registration for ```IGetterSetter```.
 b.Add(Def{
     Type:     reflect.TypeOf(&mockObject3{}),
     Unshared: true,
+    SafeInject: true,
   })
 ```  
 
