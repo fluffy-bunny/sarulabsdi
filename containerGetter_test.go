@@ -90,6 +90,7 @@ func TestGetByType_FromSubContainer(t *testing.T) {
 		},
 		Unshared: true,
 	})
+	assert.NoError(t, err)
 	err = b.Add(Def{
 		Type:             reflect.TypeOf(&mockObject2{}),
 		ImplementedTypes: types,
@@ -101,13 +102,14 @@ func TestGetByType_FromSubContainer(t *testing.T) {
 		},
 		Unshared: true,
 	})
+	assert.NoError(t, err)
 	var app = b.Build()
 
 	_, err = app.SafeGetByType(rt)
-	require.NotNil(t, err)
+	require.Error(t, err)
 
 	_, err = app.SafeGetManyByType(rt)
-	require.NotNil(t, err)
+	require.Error(t, err)
 
 	sub, err := app.SubContainer()
 	require.Nil(t, err)
@@ -776,4 +778,86 @@ func TestConcurrentBuild(t *testing.T) {
 	app.Delete()
 
 	require.Equal(t, uint64(1), atomic.LoadUint64(&numClose))
+}
+
+func TestTypedObjects_ReflectBuilder_panic(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
+		Unshared: true,
+	})
+	var app = b.Build()
+	assert.Panics(t, func() {
+		rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
+		app.GetByType(rt)
+	})
+}
+
+func TestTypedObjects_ReflectBuilder_panic_must_not(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:       reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
+		Unshared:   true,
+		SafeInject: true,
+	})
+	var app = b.Build()
+
+	rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
+	obj := app.GetByType(rt).(*mockObjectDependencyDoesNotExist)
+	assert.NotNil(t, obj)
+	assert.Nil(t, obj.NotHere)
+}
+func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved(t *testing.T) {
+	b, _ := NewBuilder()
+	types := NewTypeSet()
+	rt := GetInterfaceReflectType((*IGetterSetter)(nil))
+	types.Add(rt)
+	// Add 2 of the same type
+	b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+
+			return &mockObject2{
+				Value: 2,
+			}, nil
+		},
+		Unshared: true,
+	})
+	b.Add(Def{
+		Type:             reflect.TypeOf(&mockObject2{}),
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1,
+			}, nil
+		},
+		Unshared: true,
+	})
+
+	b.Add(Def{
+		Type:     reflect.TypeOf(&mockObject3{}),
+		Unshared: true,
+	})
+	// The last object added
+
+	var app = b.Build()
+
+	// get the type of the object we want to retrieve
+	rt = reflect.TypeOf(&mockObject3{}).Elem()
+
+	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	obj2, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// should retrieve different object every time
+	require.False(t, obj1 == obj2)
+
+	// value must be of the last one added
+	exected := 1
+	require.Equal(t, exected, obj1.(*mockObject3).GetterSetter.GetValue())
+	require.Equal(t, exected, obj2.(*mockObject3).GetterSetter.GetValue())
+
 }

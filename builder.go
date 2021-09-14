@@ -95,6 +95,9 @@ func (b *Builder) add(def Def) error {
 		}
 		// automatically add the type of the root object
 		def.ImplementedTypes.Add(def.Type)
+		if def.Build == nil {
+			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def.SafeInject)
+		}
 	}
 
 	if def.Name == "" {
@@ -161,7 +164,7 @@ func (b *Builder) Build() Container {
 
 	defs := b.Definitions()
 
-	rtDefMap := make(map[string]deflist)
+	rtDefMap := make(map[reflect.Type]deflist)
 
 	// efficiency map.  Build out a fast lookup for types to defs
 	for name := range defs {
@@ -173,20 +176,22 @@ func (b *Builder) Build() Container {
 		}
 
 		for rt := range def.ImplementedTypes {
-			var key string
+			var key reflect.Type
 			if rt.Kind() == reflect.Interface {
-				key = GenerateReproducableTypeKey(rt)
+				key = rt
 			} else {
-				key = GenerateReproducableTypeKey(rt.Elem())
+				key = rt.Elem()
 			}
 			rtDefMap[key] = append(rtDefMap[key], &def)
 		}
 	}
 
+	// map types for fast lookup
 	for k := range rtDefMap {
 		eList := rtDefMap[k]
 		sort.Sort(deflist(eList))
 	}
+
 	return &container{
 		containerCore: &containerCore{
 			scopes:       b.scopes,
