@@ -19,9 +19,6 @@ type testStruct struct {
 func (s *testStruct) Ctor() {
 	s.T = "Ctor"
 }
-func (s *testStruct) ctorPrivate() {
-	s.T = "Ctor"
-}
 
 func (s *testStruct) Get() string {
 	return s.T
