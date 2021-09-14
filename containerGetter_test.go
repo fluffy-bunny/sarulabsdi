@@ -780,6 +780,54 @@ func TestConcurrentBuild(t *testing.T) {
 	require.Equal(t, uint64(1), atomic.LoadUint64(&numClose))
 }
 
+func TestTypedObjects_map_type(t *testing.T) {
+	type MyMapType map[string]string
+	rtPtr := reflect.TypeOf(&MyMapType{})
+	rtElem := rtPtr.Elem()
+
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:     rtPtr,
+		Unshared: true,
+		Build: func(ctn Container) (interface{}, error) {
+			result := MyMapType{
+				"test": "dog",
+			}
+			return &result, nil
+		},
+	})
+	var app = b.Build()
+	obj := app.GetByType(rtElem).(*MyMapType)
+	assert.NotNil(t, obj)
+	dObj := *obj
+
+	assert.Equal(t, "dog", dObj["test"])
+}
+
+func TestTypedObjects_slice_type(t *testing.T) {
+	type MySliceType []string
+	rtPtr := reflect.TypeOf(&MySliceType{})
+	rtElem := rtPtr.Elem()
+
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:     rtPtr,
+		Unshared: true,
+		Build: func(ctn Container) (interface{}, error) {
+			result := MySliceType{
+				"dog",
+			}
+			return &result, nil
+		},
+	})
+	var app = b.Build()
+	obj := app.GetByType(rtElem).(*MySliceType)
+	assert.NotNil(t, obj)
+	dObj := *obj
+
+	assert.Equal(t, "dog", dObj[0])
+}
+
 func TestTypedObjects_ReflectBuilder_panic(t *testing.T) {
 	b, _ := NewBuilder()
 	b.Add(Def{

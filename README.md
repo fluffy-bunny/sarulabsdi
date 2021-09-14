@@ -181,8 +181,8 @@ Its more expensive but you don't need a BUILD func to create the objects if the 
 
 ```go
 type mockObject3 struct {
-	GetterSetter  IGetterSetter   `inject:""`
-	GetterSetters []IGetterSetter `inject:""`
+  GetterSetter  IGetterSetter   `inject:""`
+  GetterSetters []IGetterSetter `inject:""`
 }
 ```
 
@@ -190,8 +190,65 @@ This assumes that there exists a registration for ```IGetterSetter```.
 
 ```go
 b.Add(Def{
-		Type:     reflect.TypeOf(&mockObject3{}),
-		Unshared: true,
-	})
+    Type:     reflect.TypeOf(&mockObject3{}),
+    Unshared: true,
+  })
 ```  
 
+## Maps and Slices 
+
+### Map
+
+```go
+func TestTypedObjects_map_type(t *testing.T) {
+    type MyMapType map[string]string
+    rtPtr := reflect.TypeOf(&MyMapType{})
+    rtElem := rtPtr.Elem()
+
+    b, _ := NewBuilder()
+    b.Add(Def{
+        Type:     rtPtr,
+        Unshared: true,
+        Build: func(ctn Container) (interface{}, error) {
+            result := MyMapType{
+                "test": "dog",
+            }
+            return &result, nil
+        },
+    })
+    var app = b.Build()
+    obj := app.GetByType(rtElem).(*MyMapType)
+    assert.NotNil(t, obj)
+    dObj := *obj
+
+    assert.Equal(t, "dog", dObj["test"])
+}
+```
+
+### Slice
+
+```go
+func TestTypedObjects_slice_type(t *testing.T) {
+    type MySliceType []string
+    rtPtr := reflect.TypeOf(&MySliceType{})
+    rtElem := rtPtr.Elem()
+
+    b, _ := NewBuilder()
+    b.Add(Def{
+        Type:     rtPtr,
+        Unshared: true,
+        Build: func(ctn Container) (interface{}, error) {
+            result := MySliceType{
+                "dog",
+            }
+            return &result, nil
+        },
+    })
+    var app = b.Build()
+    obj := app.GetByType(rtElem).(*MySliceType)
+    assert.NotNil(t, obj)
+    dObj := *obj
+
+    assert.Equal(t, "dog", dObj[0])
+}
+```
