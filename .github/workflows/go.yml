@@ -46,6 +46,19 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
+    - uses: actions/checkout@v2
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: "^1.17"
+    
+    - name: GO MOD VENDOR
+      run: go mod vendor
+     # NOTE: This will NOT trigger another run of the workflow
+    - name: AutoCommit
+      uses: stefanzweifel/git-auto-commit-action@v4.11.0
+      with:
+        commit_message: Apply Protoc Changes
     - name: Bump version and push tag
       id: tag_version
       uses: mathieudutour/github-tag-action@v5.6
