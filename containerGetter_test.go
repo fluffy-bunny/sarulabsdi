@@ -780,6 +780,33 @@ func TestConcurrentBuild(t *testing.T) {
 	require.Equal(t, uint64(1), atomic.LoadUint64(&numClose))
 }
 
+func TestTypedObjects_ReflectBuilder_panic(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
+		Unshared: true,
+	})
+	var app = b.Build()
+	assert.Panics(t, func() {
+		rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
+		app.GetByType(rt)
+	})
+}
+
+func TestTypedObjects_ReflectBuilder_panic_must_not(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:       reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
+		Unshared:   true,
+		SafeInject: true,
+	})
+	var app = b.Build()
+
+	rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
+	obj := app.GetByType(rt).(*mockObjectDependencyDoesNotExist)
+	assert.NotNil(t, obj)
+	assert.Nil(t, obj.NotHere)
+}
 func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved(t *testing.T) {
 	b, _ := NewBuilder()
 	types := NewTypeSet()

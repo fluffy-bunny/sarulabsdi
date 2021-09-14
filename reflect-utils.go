@@ -6,8 +6,8 @@ import (
 	"github.com/fatih/structtag"
 )
 
-func MakeDefaultBuildByType(rtElem reflect.Type) func(ctn Container) (interface{}, error) {
-	objMaker := MakeInjectBuilderFunc(rtElem)
+func MakeDefaultBuildByType(rtElem reflect.Type, safeInject bool) func(ctn Container) (interface{}, error) {
+	objMaker := MakeInjectBuilderFunc(rtElem, safeInject)
 	return func(ctn Container) (interface{}, error) {
 		rtValue := reflect.New(rtElem)
 		dst := rtValue.Interface()
@@ -16,7 +16,7 @@ func MakeDefaultBuildByType(rtElem reflect.Type) func(ctn Container) (interface{
 }
 
 // MakeInjectBuilderFunc is EXPENSIVE consider making direct calls to GetByType and GetManyByType directly
-func MakeInjectBuilderFunc(rt reflect.Type) func(ctn Container, dst interface{}) (interface{}, error) {
+func MakeInjectBuilderFunc(rt reflect.Type, safeInject bool) func(ctn Container, dst interface{}) (interface{}, error) {
 	setters := []func(ctn Container, dst interface{}){}
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
@@ -43,12 +43,19 @@ func MakeInjectBuilderFunc(rt reflect.Type) func(ctn Container, dst interface{})
 					if f.CanSet() {
 						sliceType := reflect.SliceOf(sliceElem)
 						sliceV := reflect.New(sliceType).Elem()
-						objs := ctn.GetManyByType(sliceElem)
-						for _, obj := range objs {
-							tsV := reflect.ValueOf(obj)
-							sliceV = reflect.Append(sliceV, tsV)
+						var objs []interface{}
+						if safeInject {
+							objs, _ = ctn.SafeGetManyByType(sliceElem)
+						} else {
+							objs = ctn.GetManyByType(sliceElem)
 						}
-						f.Set(sliceV)
+						if objs != nil {
+							for _, obj := range objs {
+								tsV := reflect.ValueOf(obj)
+								sliceV = reflect.Append(sliceV, tsV)
+							}
+							f.Set(sliceV)
+						}
 					}
 				}
 			})
@@ -61,9 +68,16 @@ func MakeInjectBuilderFunc(rt reflect.Type) func(ctn Container, dst interface{})
 					// addressable and was not obtained by
 					// the use of unexported struct fields.
 					if f.CanSet() {
-						obj := ctn.GetByType(rtField)
-						objValue := reflect.ValueOf(obj)
-						f.Set(objValue)
+						var obj interface{}
+						if safeInject {
+							obj, _ = ctn.SafeGetByType(rtField)
+						} else {
+							obj = ctn.GetByType(rtField)
+						}
+						if obj != nil {
+							objValue := reflect.ValueOf(obj)
+							f.Set(objValue)
+						}
 					}
 				}
 			})

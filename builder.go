@@ -96,7 +96,7 @@ func (b *Builder) add(def Def) error {
 		// automatically add the type of the root object
 		def.ImplementedTypes.Add(def.Type)
 		if def.Build == nil {
-			def.Build = MakeDefaultBuildByType(def.Type.Elem())
+			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def.SafeInject)
 		}
 	}
 
