@@ -16,9 +16,51 @@ type testStruct struct {
 	T string
 }
 
+func (s *testStruct) Ctor() {
+	s.T = "Ctor"
+}
+
 func (s *testStruct) Get() string {
 	return s.T
 }
+
+func (s *testStruct) Set(name string) {
+	s.T = name
+}
+
+func TestReflectionCallMethod(t *testing.T) {
+	rtPtr := reflect.TypeOf(&testStruct{})
+	rtElem := rtPtr.Elem()
+	fmt.Printf("rtPtr=%v, rtElem=%v", rtPtr, rtElem)
+
+	method, ok := rtPtr.MethodByName("Set")
+	assert.True(t, ok)
+	fmt.Printf("method=%v", method)
+
+	method, ok = rtPtr.MethodByName("Ctor")
+	assert.True(t, ok)
+	fmt.Printf("method=%v", method)
+
+	obj := &testStruct{}
+
+	rtSetValue := reflect.ValueOf(obj).MethodByName("Set")
+
+	inputs := make([]reflect.Value, 1)
+	inputs[0] = reflect.ValueOf("dog")
+	rtSetValue.Call(inputs)
+	assert.Equal(t, "dog", obj.Get())
+
+	inputs[0] = reflect.ValueOf("cat")
+	_, err := invoke(obj, "Set", "cat")
+	assert.NoError(t, err)
+	assert.Equal(t, "cat", obj.Get())
+
+	_, err = invoke(obj, "Ctor")
+	assert.NoError(t, err)
+	assert.Equal(t, "Ctor", obj.Get())
+
+}
+
 func TestReflectionTypeConvert(t *testing.T) {
 	type t2 struct {
 		Test       ITest       `inject:"ITest2"`

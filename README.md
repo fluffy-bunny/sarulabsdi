@@ -252,3 +252,17 @@ func TestTypedObjects_slice_type(t *testing.T) {
     assert.Equal(t, "dog", dObj[0])
 }
 ```
+
+## Ctor or Not to Ctor
+
+If your typed object contains the following method it will get called during the build AFTER all services have been injected  
+
+```go
+type mockObjectWithCtor struct {
+        CtorCalled bool
+    }
+
+func (m *mockObjectWithCtor) Ctor() {
+    m.CtorCalled = true
+}
+```

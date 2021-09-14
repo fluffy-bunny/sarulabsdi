@@ -89,6 +89,13 @@ func (b *Builder) Add(defs ...Def) error {
 
 func (b *Builder) add(def Def) error {
 	if def.Type != nil {
+		ctorMethod, hasCtor := def.Type.MethodByName("Ctor")
+		if hasCtor {
+			// our ctor MUST have no arguments
+			numIn := ctorMethod.Type.NumIn()
+			def.hasCtor = numIn == 1
+		}
+
 		def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
 		if def.ImplementedTypes == nil {
 			def.ImplementedTypes = NewTypeSet()
@@ -96,7 +103,7 @@ func (b *Builder) add(def Def) error {
 		// automatically add the type of the root object
 		def.ImplementedTypes.Add(def.Type)
 		if def.Build == nil {
-			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def.SafeInject)
+			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def)
 		}
 	}
 

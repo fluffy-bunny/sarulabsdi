@@ -1,13 +1,48 @@
 package di
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/fatih/structtag"
 )
 
-func MakeDefaultBuildByType(rtElem reflect.Type, safeInject bool) func(ctn Container) (interface{}, error) {
-	objMaker := MakeInjectBuilderFunc(rtElem, safeInject)
+// Invoke - firstResult, err := Invoke(AnyStructInterface, MethodName, Params...)
+func invoke(any interface{}, name string, args ...interface{}) ([]reflect.Value, error) {
+	method := reflect.ValueOf(any).MethodByName(name)
+	methodType := method.Type()
+	numIn := methodType.NumIn()
+	if numIn > len(args) {
+		return nil, fmt.Errorf("method %s must have minimum %d params. Have %d", name, numIn, len(args))
+	}
+	if numIn != len(args) && !methodType.IsVariadic() {
+		return nil, fmt.Errorf("method %s must have %d params. Have %d", name, numIn, len(args))
+	}
+	in := make([]reflect.Value, len(args))
+	for i := 0; i < len(args); i++ {
+		var inType reflect.Type
+		if methodType.IsVariadic() && i >= numIn-1 {
+			inType = methodType.In(numIn - 1).Elem()
+		} else {
+			inType = methodType.In(i)
+		}
+		argValue := reflect.ValueOf(args[i])
+		if !argValue.IsValid() {
+			return nil, fmt.Errorf("method %s. Param[%d] must be %s. Have %s", name, i, inType, argValue.String())
+		}
+		argType := argValue.Type()
+		if argType.ConvertibleTo(inType) {
+			in[i] = argValue.Convert(inType)
+		} else {
+			return nil, fmt.Errorf("method %s. Param[%d] must be %s. Have %s", name, i, inType, argType)
+		}
+	}
+
+	return method.Call(in), nil
+}
+func MakeDefaultBuildByType(rtElem reflect.Type, def Def) func(ctn Container) (interface{}, error) {
+
+	objMaker := MakeInjectBuilderFunc(rtElem, def)
 	return func(ctn Container) (interface{}, error) {
 		rtValue := reflect.New(rtElem)
 		dst := rtValue.Interface()
@@ -16,7 +51,7 @@ func MakeDefaultBuildByType(rtElem reflect.Type, safeInject bool) func(ctn Conta
 }
 
 // MakeInjectBuilderFunc is EXPENSIVE consider making direct calls to GetByType and GetManyByType directly
-func MakeInjectBuilderFunc(rt reflect.Type, safeInject bool) func(ctn Container, dst interface{}) (interface{}, error) {
+func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst interface{}) (interface{}, error) {
 	setters := []func(ctn Container, dst interface{}){}
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)
@@ -44,7 +79,7 @@ func MakeInjectBuilderFunc(rt reflect.Type, safeInject bool) func(ctn Container,
 						sliceType := reflect.SliceOf(sliceElem)
 						sliceV := reflect.New(sliceType).Elem()
 						var objs []interface{}
-						if safeInject {
+						if def.SafeInject {
 							objs, _ = ctn.SafeGetManyByType(sliceElem)
 						} else {
 							objs = ctn.GetManyByType(sliceElem)
@@ -69,7 +104,7 @@ func MakeInjectBuilderFunc(rt reflect.Type, safeInject bool) func(ctn Container,
 					// the use of unexported struct fields.
 					if f.CanSet() {
 						var obj interface{}
-						if safeInject {
+						if def.SafeInject {
 							obj, _ = ctn.SafeGetByType(rtField)
 						} else {
 							obj = ctn.GetByType(rtField)
@@ -97,6 +132,9 @@ func MakeInjectBuilderFunc(rt reflect.Type, safeInject bool) func(ctn Container,
 		}
 		for _, setter := range setters {
 			setter(ctn, dst)
+		}
+		if def.hasCtor {
+			invoke(dst, "Ctor")
 		}
 		return dst, nil
 	}

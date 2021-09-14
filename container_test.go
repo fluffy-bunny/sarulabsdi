@@ -30,8 +30,14 @@ type (
 	mockObjectWithDependency struct {
 		Object *mockObject `inject:""`
 	}
+	mockObjectWithCtor struct {
+		CtorCalled bool
+	}
 )
 
+func (m *mockObjectWithCtor) Ctor() {
+	m.CtorCalled = true
+}
 func (m *mockObject2) GetValue() int {
 	return m.Value
 }

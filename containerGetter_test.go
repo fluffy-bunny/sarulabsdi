@@ -2,6 +2,7 @@ package di
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
 	"sync"
 	"sync/atomic"
@@ -855,6 +856,29 @@ func TestTypedObjects_ReflectBuilder_panic_must_not(t *testing.T) {
 	assert.NotNil(t, obj)
 	assert.Nil(t, obj.NotHere)
 }
+func TestTypedObjects_ReflectBuilder_Obj_with_CTOR(t *testing.T) {
+	rtPtr := reflect.TypeOf(&mockObjectWithCtor{})
+	rtElem := rtPtr.Elem()
+	fmt.Printf("rtPtr=%v, rtElem=%v", rtPtr, rtElem)
+
+	method, ok := rtPtr.MethodByName("Ctor")
+	assert.True(t, ok)
+	fmt.Printf("method=%v", method)
+
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:       rtPtr,
+		Unshared:   true,
+		SafeInject: true,
+	})
+	var app = b.Build()
+
+	rt := reflect.TypeOf(&mockObjectWithCtor{}).Elem()
+	obj := app.GetByType(rt).(*mockObjectWithCtor)
+	assert.NotNil(t, obj)
+	assert.True(t, obj.CtorCalled)
+}
+
 func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved(t *testing.T) {
 	b, _ := NewBuilder()
 	types := NewTypeSet()
