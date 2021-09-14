@@ -7,27 +7,42 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-type mockObject struct {
-	sync.Mutex
-	Closed bool
-}
-type IGetterSetter interface {
-	GetValue() int
-	SetValue(value int)
-}
-type mockObject2 struct {
-	Value int
-}
+type (
+	mockObject struct {
+		sync.Mutex
+		Closed bool
+	}
+	mockObject2 struct {
+		Value int
+	}
+	IDoNotExist   interface{}
+	IGetterSetter interface {
+		GetValue() int
+		SetValue(value int)
+	}
+	mockObject3 struct {
+		GetterSetter  IGetterSetter   `inject:""`
+		GetterSetters []IGetterSetter `inject:""`
+	}
+	mockObjectDependencyDoesNotExist struct {
+		NotHere IDoNotExist `inject:""`
+	}
+	mockObjectWithDependency struct {
+		Object *mockObject `inject:""`
+	}
+	mockObjectWithCtor struct {
+		CtorCalled bool
+	}
+)
 
+func (m *mockObjectWithCtor) Ctor() {
+	m.CtorCalled = true
+}
 func (m *mockObject2) GetValue() int {
 	return m.Value
 }
 func (m *mockObject2) SetValue(value int) {
 	m.Value = value
-}
-
-type mockObjectWithDependency struct {
-	Object *mockObject
 }
 
 func TestCycleError(t *testing.T) {
