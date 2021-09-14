@@ -50,8 +50,6 @@ When you do a ```GetByType```, don't keep calling reflect to get a type of what 
 
 ### Registration
 
-type [DEF](https://github.com/fluffy-bunny/sarulabsdi/blob/8a200c4fa3aefa0a28ddc66739aac1631f2a95aa/definition.go#L19) struct  
-
 ```go
 // Def contains information to build and close an object inside a Container.
 type Def struct {
