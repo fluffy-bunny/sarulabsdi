@@ -43,6 +43,23 @@ func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, impl
 	builder.Add(def)
 }
 
+// AddScopedWithImplementedTypesWithBuilderByType adds a type and its implemented interfaces
+func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes2 := NewTypeSet()
+	for _, rt := range implementedTypes {
+		implementedTypes2.Add(rt)
+	}
+	def := Def{
+		Scope:            Request, // Scoped
+		Type:             rt,
+		ImplementedTypes: implementedTypes2,
+		SafeInject:       true,  // don't panic
+		Unshared:         false, // singleton within scope
+		Build:            build,
+	}
+	builder.Add(def)
+}
+
 // AddSingletonByType adds a simple singleton type
 func AddSingletonByType(builder *Builder, rt reflect.Type) {
 	AddSingletonWithImplementedTypesByType(builder, rt, nil)
@@ -60,6 +77,23 @@ func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 		ImplementedTypes: implementedTypes2,
 		SafeInject:       true,  // don't panic
 		Unshared:         false, // Singleton
+	}
+	builder.Add(def)
+}
+
+// AddSingletonWithImplementedTypesWithBuilderByType adds a prebuilt obj
+func AddSingletonWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes2 := NewTypeSet()
+	for _, rt := range implementedTypes {
+		implementedTypes2.Add(rt)
+	}
+	def := Def{
+		Scope:            App, // Singleton
+		Type:             rt,
+		ImplementedTypes: implementedTypes2,
+		SafeInject:       true,  // don't panic
+		Unshared:         false, // Singleton
+		Build:            build,
 	}
 	builder.Add(def)
 }
@@ -92,7 +126,6 @@ func AddSingletonTypeByObj(builder *Builder, obj interface{}) {
 		// Dialer kafkaContracts.IKafkaDialer `inject:""`
 		SafeInject: true,  // don't panic
 		Unshared:   false, // Singleton
-
 		Build: func(ctn Container) (interface{}, error) {
 			return obj, nil
 		},
