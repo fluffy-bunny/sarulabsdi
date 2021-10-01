@@ -22,6 +22,27 @@ func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 	builder.Add(def)
 }
 
+// AddScopedByType adds a simple scoped type
+func AddScopedByType(builder *Builder, rt reflect.Type) {
+	AddScopedWithImplementedTypesByType(builder, rt, nil)
+}
+
+// AddScopedWithImplementedTypesByType adds a type and its implemented interfaces
+func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes2 := NewTypeSet()
+	for _, rt := range implementedTypes {
+		implementedTypes2.Add(rt)
+	}
+	def := Def{
+		Scope:            Request, // Scoped
+		Type:             rt,
+		ImplementedTypes: implementedTypes2,
+		SafeInject:       true,  // don't panic
+		Unshared:         false, // singleton within scope
+	}
+	builder.Add(def)
+}
+
 // AddSingletonByType adds a simple singleton type
 func AddSingletonByType(builder *Builder, rt reflect.Type) {
 	AddSingletonWithImplementedTypesByType(builder, rt, nil)
@@ -34,6 +55,7 @@ func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 		implementedTypes2.Add(rt)
 	}
 	def := Def{
+		Scope:            App, // Singleton
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
 		SafeInject:       true,  // don't panic
@@ -49,6 +71,7 @@ func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, im
 		implementedTypes2.Add(rt)
 	}
 	def := Def{
+		Scope:            App, // Singleton
 		Type:             reflect.TypeOf(obj),
 		ImplementedTypes: implementedTypes2,
 		SafeInject:       true,  // don't panic
@@ -63,7 +86,8 @@ func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, im
 // AddSingletonTypeByObj adds a prebuilt object by its type
 func AddSingletonTypeByObj(builder *Builder, obj interface{}) {
 	def := Def{
-		Type: reflect.TypeOf(obj),
+		Scope: App, // Singleton
+		Type:  reflect.TypeOf(obj),
 		// SafeInject MUST be true because the following CAN be nil
 		// Dialer kafkaContracts.IKafkaDialer `inject:""`
 		SafeInject: true,  // don't panic
