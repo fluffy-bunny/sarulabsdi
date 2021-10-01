@@ -3,12 +3,12 @@ package di
 import "reflect"
 
 // AddTransientByType adds a simple transient type
-func AddTransientByType(builder *Builder, rt reflect.Type) {
-	AddTransientWithImplementedTypesByType(builder, rt, nil)
+func AddTransientByType(builder *Builder, rt reflect.Type) Def {
+	return AddTransientWithImplementedTypesByType(builder, rt, nil)
 }
 
 // AddTransientWithImplementedTypesByType adds a type and its implemented interfaces
-func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) {
+func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -20,15 +20,16 @@ func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 		Unshared:         true, // Transient
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddScopedByType adds a simple scoped type
-func AddScopedByType(builder *Builder, rt reflect.Type) {
-	AddScopedWithImplementedTypesByType(builder, rt, nil)
+func AddScopedByType(builder *Builder, rt reflect.Type) Def {
+	return AddScopedWithImplementedTypesByType(builder, rt, nil)
 }
 
 // AddScopedWithImplementedTypesByType adds a type and its implemented interfaces
-func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) {
+func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -41,10 +42,11 @@ func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, impl
 		Unshared:         false, // singleton within scope
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddScopedWithImplementedTypesWithBuilderByType adds a type and its implemented interfaces
-func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) {
+func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -58,15 +60,16 @@ func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect
 		Build:            build,
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddSingletonByType adds a simple singleton type
-func AddSingletonByType(builder *Builder, rt reflect.Type) {
-	AddSingletonWithImplementedTypesByType(builder, rt, nil)
+func AddSingletonByType(builder *Builder, rt reflect.Type) Def {
+	return AddSingletonWithImplementedTypesByType(builder, rt, nil)
 }
 
 // AddSingletonWithImplementedTypesByType adds a prebuilt obj
-func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) {
+func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -79,10 +82,11 @@ func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 		Unshared:         false, // Singleton
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddSingletonWithImplementedTypesWithBuilderByType adds a prebuilt obj
-func AddSingletonWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) {
+func AddSingletonWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -96,10 +100,11 @@ func AddSingletonWithImplementedTypesWithBuilderByType(builder *Builder, rt refl
 		Build:            build,
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddSingletonWithImplementedTypesByObj adds a prebuilt obj
-func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, implementedTypes ...reflect.Type) {
+func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -115,10 +120,11 @@ func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, im
 		},
 	}
 	builder.Add(def)
+	return def
 }
 
 // AddSingletonTypeByObj adds a prebuilt object by its type
-func AddSingletonTypeByObj(builder *Builder, obj interface{}) {
+func AddSingletonTypeByObj(builder *Builder, obj interface{}) Def {
 	def := Def{
 		Scope: App, // Singleton
 		Type:  reflect.TypeOf(obj),
@@ -131,4 +137,5 @@ func AddSingletonTypeByObj(builder *Builder, obj interface{}) {
 		},
 	}
 	builder.Add(def)
+	return def
 }
