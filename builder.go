@@ -88,6 +88,18 @@ func (b *Builder) Add(defs ...Def) error {
 }
 
 func (b *Builder) add(def Def) error {
+
+	//=========================================================
+	// SELF-NOTE: Look at TestGetByType_simple_object before re-inventing that
+	// you think you need to register a simple type by its Elem
+	// a type HAS TO BE rt := reflect.TypeOf(&mockObject2{}) and NOT
+	// rt := reflect.TypeOf(&mockObject2{}).Elem() because we need that first
+	// to panic when we can call def.Type.Implements(rt)
+	// Stop: Everything for registration is as it should be
+	// We can get the simple type by passing the following;
+	//      app.SafeGetByType(rt) // the pointer to mockObject{}
+	//      app.SafeGetByType(rt.Elem()) // the pointers Elem
+	//=========================================================
 	if def.Type != nil {
 		ctorMethod, hasCtor := def.Type.MethodByName("Ctor")
 		if hasCtor {

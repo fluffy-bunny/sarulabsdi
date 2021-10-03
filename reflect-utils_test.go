@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/fatih/structtag"
+	"github.com/rs/zerolog/log"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -177,6 +178,13 @@ func TestTypeTags(t *testing.T) {
 	fmt.Printf("rtTestStruct:%v,elem:%v\n", rtTestStruct, rtTestStructElem)
 
 	dst := &t2{}
+	rtDstPtr := reflect.TypeOf(dst)
+	rtDstPtrElem := reflect.TypeOf(dst).Elem()
+
+	log.Info().
+		Str("kind.rtDstPtr", fmt.Sprintf("%v", rtDstPtr)).
+		Interface("kind.rtDstPtrElem", fmt.Sprintf("%v", rtDstPtrElem)).
+		Send()
 	// get field tag
 	rt := reflect.TypeOf(dst).Elem()
 	fmt.Printf("rt:%v,elem:%v\n", rt, reflect.TypeOf(t2{}))

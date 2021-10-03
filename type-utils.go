@@ -2,13 +2,13 @@ package di
 
 import "reflect"
 
-// AddTransientByType adds a simple transient type
-func AddTransientByType(builder *Builder, rt reflect.Type) Def {
-	return AddTransientWithImplementedTypesByType(builder, rt, nil)
+// AddTransient adds a simple transient type
+func AddTransient(builder *Builder, rt reflect.Type) Def {
+	return AddTransientWithImplementedTypes(builder, rt, nil)
 }
 
-// AddTransientWithImplementedTypesByType adds a type and its implemented interfaces
-func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
+// AddTransientWithImplementedTypes adds a type and its implemented interfaces
+func AddTransientWithImplementedTypes(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -23,13 +23,13 @@ func AddTransientWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 	return def
 }
 
-// AddScopedByType adds a simple scoped type
-func AddScopedByType(builder *Builder, rt reflect.Type) Def {
-	return AddScopedWithImplementedTypesByType(builder, rt, nil)
+// AddScoped adds a simple scoped type
+func AddScoped(builder *Builder, rt reflect.Type) Def {
+	return AddScopedWithImplementedTypes(builder, rt, nil)
 }
 
-// AddScopedWithImplementedTypesByType adds a type and its implemented interfaces
-func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
+// AddScopedWithImplementedTypes adds a type and its implemented interfaces
+func AddScopedWithImplementedTypes(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -45,8 +45,8 @@ func AddScopedWithImplementedTypesByType(builder *Builder, rt reflect.Type, impl
 	return def
 }
 
-// AddScopedWithImplementedTypesWithBuilderByType adds a type and its implemented interfaces
-func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
+// AddScopedWithImplementedTypesWithBuilder adds a type and its implemented interfaces
+func AddScopedWithImplementedTypesWithBuilder(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -63,13 +63,13 @@ func AddScopedWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect
 	return def
 }
 
-// AddSingletonByType adds a simple singleton type
-func AddSingletonByType(builder *Builder, rt reflect.Type) Def {
-	return AddSingletonWithImplementedTypesByType(builder, rt, nil)
+// AddSingleton adds a simple singleton type
+func AddSingleton(builder *Builder, rt reflect.Type) Def {
+	return AddSingletonWithImplementedTypes(builder, rt, nil)
 }
 
-// AddSingletonWithImplementedTypesByType adds a prebuilt obj
-func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
+// AddSingletonWithImplementedTypes adds a prebuilt obj
+func AddSingletonWithImplementedTypes(builder *Builder, rt reflect.Type, implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)
@@ -85,8 +85,8 @@ func AddSingletonWithImplementedTypesByType(builder *Builder, rt reflect.Type, i
 	return def
 }
 
-// AddSingletonWithImplementedTypesWithBuilderByType adds a prebuilt obj
-func AddSingletonWithImplementedTypesWithBuilderByType(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
+// AddSingletonWithImplementedTypesWithBuilder adds a prebuilt obj
+func AddSingletonWithImplementedTypesWithBuilder(builder *Builder, rt reflect.Type, build func(ctn Container) (interface{}, error), implementedTypes ...reflect.Type) Def {
 	implementedTypes2 := NewTypeSet()
 	for _, rt := range implementedTypes {
 		implementedTypes2.Add(rt)

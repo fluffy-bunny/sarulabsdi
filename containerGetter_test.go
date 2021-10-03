@@ -67,6 +67,36 @@ func TestSafeGet(t *testing.T) {
 	require.True(t, obj == objBis)
 }
 
+func TestGetByType_simple_object(t *testing.T) {
+	b, _ := NewBuilder()
+	defer func() {
+		require.Nil(t, recover(), "add and build should not panic")
+	}()
+	rt := reflect.TypeOf(&mockObject2{})
+	// add mockObject
+	err := b.Add(Def{
+		Type:  rt,
+		Scope: App,
+		Build: func(ctn Container) (interface{}, error) {
+			return &mockObject2{
+				Value: 1,
+			}, nil
+		},
+		Unshared: true,
+	})
+	assert.NoError(t, err)
+	var app = b.Build()
+
+	// we can get the simple object by it reflect.Type that is of a pointer
+	_, err = app.SafeGetByType(rt)
+	require.NoError(t, err)
+
+	// we can get the simple object by it reflect.Type that is of a pointer Elem
+	_, err = app.SafeGetByType(rt.Elem())
+	require.NoError(t, err)
+
+}
+
 func TestGetByType_FromSubContainer(t *testing.T) {
 	b, _ := NewBuilder()
 
