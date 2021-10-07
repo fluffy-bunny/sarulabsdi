@@ -47,3 +47,14 @@ func AddScopedInterfaceType(builder *di.Builder, implType reflect.Type) {
 func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
 }
+
+func GetInterfaceTypeFromContainer(ctn di.Container) InterfaceType {
+	return ctn.GetByType(ReflectTypeInterfaceType).(InterfaceType)
+}
+func SafeGetInterfaceTypeFromContainer(ctn di.Container) (InterfaceType, error) {
+	obj, err := ctn.SafeGetByType(ReflectTypeInterfaceType)
+	if err != nil {
+		return nil, err
+	}
+	return obj.(InterfaceType), nil
+}
