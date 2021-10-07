@@ -48,9 +48,12 @@ func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, bu
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
 }
 
+// GetInterfaceTypeFromContainer alternative to SafeGetInterfaceTypeFromContainer but panics of object is not present
 func GetInterfaceTypeFromContainer(ctn di.Container) InterfaceType {
 	return ctn.GetByType(ReflectTypeInterfaceType).(InterfaceType)
 }
+
+// SafeGetInterfaceTypeFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetInterfaceTypeFromContainer(ctn di.Container) (InterfaceType, error) {
 	obj, err := ctn.SafeGetByType(ReflectTypeInterfaceType)
 	if err != nil {
