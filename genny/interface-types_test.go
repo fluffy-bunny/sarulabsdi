@@ -14,8 +14,9 @@ type IJunkInterfaceType interface {
 }
 
 var (
-	rtserviceInterfaceType = reflect.TypeOf(&serviceInterfaceType{})
-	rtIJunkInterfaceType   = di.GetInterfaceReflectType((*IJunkInterfaceType)(nil))
+	// ReflectTypeServiceInterfaceType expored so that projects can refernce it to for go mod vendor to pull it
+	ReflectTypeServiceInterfaceType = reflect.TypeOf(&serviceInterfaceType{})
+	rtIJunkInterfaceType            = di.GetInterfaceReflectType((*IJunkInterfaceType)(nil))
 )
 
 func assert_singleton_InterfaceType_SafeGet_Get(t *testing.T, singletonContainer di.Container) {
@@ -39,7 +40,7 @@ func assert_singleton_InterfaceType_SafeGet_Get(t *testing.T, singletonContainer
 }
 func Test_singleton_InterfaceType_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
-	AddSingletonInterfaceType(builder, rtserviceInterfaceType)
+	AddSingletonInterfaceType(builder, ReflectTypeServiceInterfaceType)
 	singletonContainer := builder.Build()
 	assert_singleton_InterfaceType_SafeGet_Get(t, singletonContainer)
 }
@@ -47,7 +48,7 @@ func Test_singleton_InterfaceType_ByFunc_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
 	obj := &serviceInterfaceType{}
 	AddSingletonInterfaceTypeByFunc(builder,
-		rtserviceInterfaceType, func(ctn di.Container) (interface{}, error) {
+		ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
 			return obj, nil
 		})
 	singletonContainer := builder.Build()
@@ -96,7 +97,7 @@ func assert_scoped_InterfaceType_SafeGet_Get(t *testing.T,
 }
 func Test_scoped_InterfaceType_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
-	AddScopedInterfaceType(builder, rtserviceInterfaceType)
+	AddScopedInterfaceType(builder, ReflectTypeServiceInterfaceType)
 	singletonContainer := builder.Build()
 	scopedContainer, _ := singletonContainer.SubContainer()
 	assert_scoped_InterfaceType_SafeGet_Get(t, singletonContainer, scopedContainer)
@@ -105,7 +106,7 @@ func Test_scoped_InterfaceType_ByFunc_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
 	obj := &serviceInterfaceType{}
 	AddScopedInterfaceTypeByFunc(builder,
-		rtserviceInterfaceType, func(ctn di.Container) (interface{}, error) {
+		ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
 			return obj, nil
 		})
 	singletonContainer := builder.Build()
@@ -152,7 +153,7 @@ func assert_transient_InterfaceType_SafeGet_Get(t *testing.T,
 }
 func Test_transient_InterfaceType_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
-	AddTransientInterfaceType(builder, rtserviceInterfaceType)
+	AddTransientInterfaceType(builder, ReflectTypeServiceInterfaceType)
 	singletonContainer := builder.Build()
 	scopedContainer, _ := singletonContainer.SubContainer()
 	subScopedContainer, _ := scopedContainer.SubContainer()
@@ -161,7 +162,7 @@ func Test_transient_InterfaceType_SafeGet_Get(t *testing.T) {
 func Test_transient_InterfaceType_ByFunc_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
 
-	AddTransientInterfaceTypeByFunc(builder, rtserviceInterfaceType, func(ctn di.Container) (interface{}, error) {
+	AddTransientInterfaceTypeByFunc(builder, ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
 		return &serviceInterfaceType{}, nil
 	})
 	singletonContainer := builder.Build()
