@@ -30,7 +30,6 @@ func AddTransientWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, b
 		implementedTypes2.Add(rt)
 	}
 	def := Def{
-		Scope:            Request, // Scoped
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
 		SafeInject:       true, // don't panic
