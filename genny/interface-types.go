@@ -13,8 +13,8 @@ type InterfaceType generic.Type
 // ReflectTypeInterfaceType used when your service claims to implement InterfaceType
 var ReflectTypeInterfaceType = di.GetInterfaceReflectType((*InterfaceType)(nil))
 
-// AddInterfaceTypeByObj adds a prebuilt obj
-func AddInterfaceTypeByObj(builder *di.Builder, obj interface{}) {
+// AddSingletonInterfaceTypeByObj adds a prebuilt obj
+func AddSingletonInterfaceTypeByObj(builder *di.Builder, obj interface{}) {
 	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeInterfaceType)
 }
 
