@@ -4,7 +4,7 @@ import "reflect"
 
 // AddTransient adds a simple transient type
 func AddTransient(builder *Builder, rt reflect.Type) Def {
-	return AddTransientWithImplementedTypes(builder, rt, nil)
+	return AddTransientWithImplementedTypes(builder, rt)
 }
 
 // AddTransientWithImplementedTypes adds a type and its implemented interfaces
@@ -42,7 +42,7 @@ func AddTransientWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, b
 
 // AddScoped adds a simple scoped type
 func AddScoped(builder *Builder, rt reflect.Type) Def {
-	return AddScopedWithImplementedTypes(builder, rt, nil)
+	return AddScopedWithImplementedTypes(builder, rt)
 }
 
 // AddScopedWithImplementedTypes adds a type and its implemented interfaces
@@ -82,7 +82,7 @@ func AddScopedWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, buil
 
 // AddSingleton adds a simple singleton type
 func AddSingleton(builder *Builder, rt reflect.Type) Def {
-	return AddSingletonWithImplementedTypes(builder, rt, nil)
+	return AddSingletonWithImplementedTypes(builder, rt)
 }
 
 // AddSingletonWithImplementedTypes adds a prebuilt obj
