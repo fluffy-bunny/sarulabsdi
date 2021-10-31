@@ -48,6 +48,11 @@ func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, bu
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
 }
 
+// RemoveAllInterfaceType removes all InterfaceType from the DI
+func RemoveAllInterfaceType(builder *di.Builder) {
+	builder.RemoveAllByType(ReflectTypeInterfaceType)
+}
+
 // GetInterfaceTypeFromContainer alternative to SafeGetInterfaceTypeFromContainer but panics of object is not present
 func GetInterfaceTypeFromContainer(ctn di.Container) InterfaceType {
 	return ctn.GetByType(ReflectTypeInterfaceType).(InterfaceType)

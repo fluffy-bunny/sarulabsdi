@@ -44,6 +44,20 @@ func Test_singleton_InterfaceType_SafeGet_Get(t *testing.T) {
 	singletonContainer := builder.Build()
 	assert_singleton_InterfaceType_SafeGet_Get(t, singletonContainer)
 }
+func Test_singleton_InterfaceType_SafeGet_Get_with_RemoveAll(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	AddSingletonInterfaceType(builder, ReflectTypeServiceInterfaceType)
+	RemoveAllInterfaceType(builder)
+	singletonContainer := builder.Build()
+	assert.Panics(t, assert.PanicTestFunc(func() {
+		GetInterfaceTypeFromContainer(singletonContainer)
+	}))
+
+	obj, err := SafeGetInterfaceTypeFromContainer(singletonContainer)
+	assert.Error(t, err)
+	assert.Nil(t, obj)
+
+}
 func Test_singleton_InterfaceType_ByFunc_SafeGet_Get(t *testing.T) {
 	builder, _ := di.NewBuilder()
 	obj := &serviceInterfaceType{}
