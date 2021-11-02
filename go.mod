@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/cheekybits/genny v1.0.0
 	github.com/fatih/structtag v1.2.0
-	github.com/rs/zerolog v1.25.0
+	github.com/rs/zerolog v1.26.0
 	github.com/stretchr/testify v1.7.0
 )
 
