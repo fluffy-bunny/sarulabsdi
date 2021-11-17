@@ -2,6 +2,12 @@
 
 This is a baseline drop of [v2.4.2 of github.com/sarulabsdi](https://github.com/sarulabs/di/releases/tag/v2.4.2)  
 
+## Installation
+
+When used with Go modules, use the following import path:
+
+    go get github.com/fluffy-bunny/sarulabsdi
+    
 ## New Features
 
 The following are non breaking changes to sarulabs/di.  
