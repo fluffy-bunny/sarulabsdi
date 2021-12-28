@@ -2,6 +2,8 @@
 
 This is a baseline drop of [v2.4.2 of github.com/sarulabsdi](https://github.com/sarulabs/di/releases/tag/v2.4.2)  
 
+Sarulabs is a solid base to build out a DI based on types.  In short, a knock off of asp.net's DI.  Objects are registered by type, objects can be retrieved by type singluarly or many.  Auto injection via reflect was added as well as generics code generation (until I get generics from a future golang version).  
+
 ## Installation
 
 When used with Go modules, use the following import path:
