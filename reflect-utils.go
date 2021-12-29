@@ -42,11 +42,11 @@ func invoke(any interface{}, name string, args ...interface{}) ([]reflect.Value,
 }
 
 func MakeDefaultCloseByType(def Def) func(obj interface{}) error {
-	if !def.hasDtor {
+	if !def.hasClose {
 		return nil
 	}
 	return func(obj interface{}) error {
-		invoke(obj, "Dtor")
+		invoke(obj, "Close")
 		return nil
 	}
 }
