@@ -31,16 +31,16 @@ type (
 		Object *mockObject `inject:""`
 	}
 	mockObjectWithCtor struct {
-		CtorCalled bool
-		DtorCalled bool
+		CtorCalled  bool
+		CloseCalled bool
 	}
 )
 
 func (m *mockObjectWithCtor) Ctor() {
 	m.CtorCalled = true
 }
-func (m *mockObjectWithCtor) Dtor() {
-	m.DtorCalled = true
+func (m *mockObjectWithCtor) Close() {
+	m.CloseCalled = true
 }
 func (m *mockObject2) GetValue() int {
 	return m.Value
