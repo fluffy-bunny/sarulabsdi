@@ -32,6 +32,7 @@ type Def struct {
 	Unshared         bool
 	SafeInject       bool
 	hasCtor          bool
+	hasDtor          bool
 }
 
 // Tag can contain more specific information about a Definition.

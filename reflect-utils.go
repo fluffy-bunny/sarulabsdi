@@ -40,6 +40,17 @@ func invoke(any interface{}, name string, args ...interface{}) ([]reflect.Value,
 
 	return method.Call(in), nil
 }
+
+func MakeDefaultCloseByType(def Def) func(obj interface{}) error {
+	if !def.hasDtor {
+		return nil
+	}
+	return func(obj interface{}) error {
+		invoke(obj, "Dtor")
+		return nil
+	}
+}
+
 func MakeDefaultBuildByType(rtElem reflect.Type, def Def) func(ctn Container) (interface{}, error) {
 
 	objMaker := MakeInjectBuilderFunc(rtElem, def)
