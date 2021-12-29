@@ -107,6 +107,12 @@ func (b *Builder) add(def Def) error {
 			numIn := ctorMethod.Type.NumIn()
 			def.hasCtor = numIn == 1
 		}
+		dtorMethod, hasDtor := def.Type.MethodByName("Dtor")
+		if hasDtor {
+			// our dtor MUST have no arguments
+			numIn := dtorMethod.Type.NumIn()
+			def.hasDtor = numIn == 1
+		}
 
 		def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
 		if def.ImplementedTypes == nil {
@@ -116,6 +122,9 @@ func (b *Builder) add(def Def) error {
 		def.ImplementedTypes.Add(def.Type)
 		if def.Build == nil {
 			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def)
+		}
+		if def.hasDtor && def.Close == nil {
+			def.Close = MakeDefaultCloseByType(def)
 		}
 	}
 

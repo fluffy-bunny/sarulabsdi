@@ -32,11 +32,15 @@ type (
 	}
 	mockObjectWithCtor struct {
 		CtorCalled bool
+		DtorCalled bool
 	}
 )
 
 func (m *mockObjectWithCtor) Ctor() {
 	m.CtorCalled = true
+}
+func (m *mockObjectWithCtor) Dtor() {
+	m.DtorCalled = true
 }
 func (m *mockObject2) GetValue() int {
 	return m.Value
