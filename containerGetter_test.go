@@ -911,7 +911,6 @@ func TestTypedObjects_ReflectBuilder_Obj_with_CTOR_Close(t *testing.T) {
 	assert.NoError(t, err)
 
 	assert.True(t, obj.CloseCalled)
-
 }
 
 func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved(t *testing.T) {
