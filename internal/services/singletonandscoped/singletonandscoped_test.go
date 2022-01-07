@@ -26,3 +26,21 @@ func TestSameTypeAsSingletonAndScoped(t *testing.T) {
 	require.NotNil(t, meScoped)
 	require.Equal(t, "scoped", meScoped.GetName())
 }
+func TestSameTypeAsSingletonAndScopedReverseOrder(t *testing.T) {
+	var err error
+	b, _ := di.NewBuilder()
+	AddScopedISingletonAndScoped(b)
+	AddSingletonISingletonAndScoped(b)
+	app := b.Build()
+
+	request, err := app.SubContainer()
+	require.Nil(t, err)
+
+	meSingleton := contracts_singletonandscoped.GetISingletonAndScopedFromContainer(app)
+	require.NotNil(t, meSingleton)
+	require.Equal(t, "singleton", meSingleton.GetName())
+
+	meScoped := contracts_singletonandscoped.GetISingletonAndScopedFromContainer(request)
+	require.NotNil(t, meScoped)
+	require.Equal(t, "scoped", meScoped.GetName())
+}
