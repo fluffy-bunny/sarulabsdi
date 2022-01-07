@@ -20,8 +20,20 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.17
-    
+        go-version: "^1.17"
+
+    - name: Install genny
+      run: |
+        go install github.com/cheekybits/genny@latest
+
+    - name: Install Mockgen
+      run: |
+        go install github.com/golang/mock/mockgen@latest
+
+    - name: GO GENERATE
+      run: |
+        go generate -x ./...
+
     - name: Build
       run: go build -v ./...
 
@@ -49,8 +61,18 @@ jobs:
       with:
         go-version: "^1.17"
     
-    - name: GO MOD VENDOR
-      run: go mod vendor
+    - name: Install genny
+      run: |
+        go install github.com/cheekybits/genny@latest
+
+    - name: Install Mockgen
+      run: |
+        go install github.com/golang/mock/mockgen@latest
+
+    - name: GO GENERATE
+      run: |
+        go generate -x ./...
+
      # NOTE: This will NOT trigger another run of the workflow
     - name: AutoCommit
       uses: stefanzweifel/git-auto-commit-action@v4.12.0
