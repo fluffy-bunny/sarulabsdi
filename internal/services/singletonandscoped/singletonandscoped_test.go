@@ -26,6 +26,7 @@ func TestSameTypeAsSingletonAndScoped(t *testing.T) {
 	require.NotNil(t, meScoped)
 	require.Equal(t, "scoped", meScoped.GetName())
 }
+
 func TestSameTypeAsSingletonAndScopedReverseOrder(t *testing.T) {
 	var err error
 	b, _ := di.NewBuilder()
@@ -44,3 +45,4 @@ func TestSameTypeAsSingletonAndScopedReverseOrder(t *testing.T) {
 	require.NotNil(t, meScoped)
 	require.Equal(t, "scoped", meScoped.GetName())
 }
+
