@@ -54,13 +54,35 @@ func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (inte
 	}
 	defs, ok := ctn.typeDefMap[rt]
 	if ok {
-		for _, def := range defs {
-			if ctn.scope == "app" && def.Scope == "request" {
-				// special case because we may have the same type registered in both app and request scopes
-				// ignore anything but app scopes
-				continue
+		if ctn.scope == "app" {
+			for _, def := range defs {
+				if def.Scope == "request" {
+					// special case because we may have the same type registered in both app and request scopes
+					// ignore anything but app scopes
+					continue
+				}
+				obj, err := g.SafeGet(ctn, def.Name)
+				if err != nil {
+					return nil, err
+				}
+				return obj, err
 			}
-			obj, err := g.SafeGet(ctn, def.Name)
+		} else if ctn.scope == "request" || ctn.scope == "subrequest" {
+			// only go after the first request scope first
+			var nonRequestdef *Def
+			for _, def := range defs {
+				if def.Scope != "request" {
+					nonRequestdef = def
+					continue
+				}
+				obj, err := g.SafeGet(ctn, def.Name)
+				if err != nil {
+					return nil, err
+				}
+				return obj, err
+			}
+			// there is no request scope, so go after the first non request scope
+			obj, err := g.SafeGet(ctn, nonRequestdef.Name)
 			if err != nil {
 				return nil, err
 			}
