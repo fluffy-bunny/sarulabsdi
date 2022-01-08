@@ -14,6 +14,12 @@ When used with Go modules, use the following import path:
 
 The following are non breaking changes to sarulabs/di.  
 
+## Same type multiple scopes
+
+You can register the same type, i.e. ```reflect.Type(&something{})``` as a singleton, transient or request.  As to who wins depends on registration order.
+
+A singleton and transient are considered the same scope type and the last one registered wins.   In the context of a request container, the last scoped object wins, and if no scoped object exists then the last registed between the singleton and transient wins.  
+
 ## SafeGetByType  
 
 ```go
@@ -197,15 +203,15 @@ type mockObject3 struct {
 
 This assumes that there exists a registration for ```IGetterSetter```.  
 
-```go
-b.Add(Def{
+```go  
+  b.Add(Def{
     Type:     reflect.TypeOf(&mockObject3{}),
     Unshared: true,
     SafeInject: true,
   })
 ```  
 
-## Maps and Slices 
+## Maps and Slices
 
 ### Map
 
