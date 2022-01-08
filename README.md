@@ -197,15 +197,15 @@ type mockObject3 struct {
 
 This assumes that there exists a registration for ```IGetterSetter```.  
 
-```go
-b.Add(Def{
+```go  
+  b.Add(Def{
     Type:     reflect.TypeOf(&mockObject3{}),
     Unshared: true,
     SafeInject: true,
   })
 ```  
 
-## Maps and Slices 
+## Maps and Slices
 
 ### Map
 
