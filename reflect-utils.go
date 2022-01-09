@@ -46,7 +46,11 @@ func MakeDefaultCloseByType(def Def) func(obj interface{}) error {
 		return nil
 	}
 	return func(obj interface{}) error {
-		invoke(obj, "Close")
+		closer, ok := obj.(ICloser)
+		if ok {
+			closer.Close()
+		}
+		//	invoke(obj, "Close")
 		return nil
 	}
 }
@@ -145,7 +149,10 @@ func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst int
 			setter(ctn, dst)
 		}
 		if def.hasCtor {
-			invoke(dst, "Ctor")
+			ctorer, ok := dst.(ICtor)
+			if ok {
+				ctorer.Ctor()
+			}
 		}
 		return dst, nil
 	}

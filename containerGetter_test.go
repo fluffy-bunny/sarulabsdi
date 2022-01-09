@@ -887,7 +887,7 @@ func TestTypedObjects_ReflectBuilder_panic_must_not(t *testing.T) {
 	assert.Nil(t, obj.NotHere)
 }
 func TestTypedObjects_ReflectBuilder_Obj_with_CTOR_Close(t *testing.T) {
-	rtPtr := reflect.TypeOf(&mockObjectWithCtor{})
+	rtPtr := reflect.TypeOf(&mockObjectWithCtorAndClose{})
 	rtElem := rtPtr.Elem()
 	fmt.Printf("rtPtr=%v, rtElem=%v", rtPtr, rtElem)
 
@@ -903,8 +903,8 @@ func TestTypedObjects_ReflectBuilder_Obj_with_CTOR_Close(t *testing.T) {
 	})
 	var app = b.Build()
 
-	rt := reflect.TypeOf(&mockObjectWithCtor{}).Elem()
-	obj := app.GetByType(rt).(*mockObjectWithCtor)
+	rt := reflect.TypeOf(&mockObjectWithCtorAndClose{}).Elem()
+	obj := app.GetByType(rt).(*mockObjectWithCtorAndClose)
 	assert.NotNil(t, obj)
 	assert.True(t, obj.CtorCalled)
 	err := app.Delete()
