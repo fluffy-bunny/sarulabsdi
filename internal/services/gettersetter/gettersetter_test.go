@@ -52,6 +52,19 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByFunc(t *testing.T)
 	require.Equal(t, 2, obj1.(*getterSetterContainer).GetterSetters[0].GetValue())
 	require.Equal(t, 1, obj1.(*getterSetterContainer).GetterSetters[1].GetValue())
 
+	manyGetterSetters := contracts_gettersetter.GetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
+
+	manyGetterSetters, err = contracts_gettersetter.SafeGetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NoError(t, err)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
+
 }
 func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *testing.T) {
 
@@ -86,5 +99,18 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *testing.T) 
 
 	require.Equal(t, 2, obj1.(*getterSetterContainer).GetterSetters[0].GetValue())
 	require.Equal(t, 1, obj1.(*getterSetterContainer).GetterSetters[1].GetValue())
+
+	manyGetterSetters := contracts_gettersetter.GetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
+
+	manyGetterSetters, err = contracts_gettersetter.SafeGetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NoError(t, err)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
 
 }

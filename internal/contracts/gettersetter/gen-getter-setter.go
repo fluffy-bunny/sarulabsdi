@@ -58,6 +58,16 @@ func GetIGetterSetterFromContainer(ctn di.Container) IGetterSetter {
 	return ctn.GetByType(ReflectTypeIGetterSetter).(IGetterSetter)
 }
 
+// GetManyIGetterSetterFromContainer alternative to SafeGetManyIGetterSetterFromContainer but panics of object is not present
+func GetManyIGetterSetterFromContainer(ctn di.Container) []IGetterSetter {
+	objs := ctn.GetManyByType(ReflectTypeIGetterSetter)
+	var results []IGetterSetter
+	for _, obj := range objs {
+		results = append(results, obj.(IGetterSetter))
+	}
+	return results
+}
+
 // SafeGetIGetterSetterFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetIGetterSetterFromContainer(ctn di.Container) (IGetterSetter, error) {
 	obj, err := ctn.SafeGetByType(ReflectTypeIGetterSetter)
@@ -65,4 +75,17 @@ func SafeGetIGetterSetterFromContainer(ctn di.Container) (IGetterSetter, error) 
 		return nil, err
 	}
 	return obj.(IGetterSetter), nil
+}
+
+// SafeGetManyIGetterSetterFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetManyIGetterSetterFromContainer(ctn di.Container) ([]IGetterSetter, error) {
+	objs, err := ctn.SafeGetManyByType(ReflectTypeIGetterSetter)
+	if err != nil {
+		return nil, err
+	}
+	var results []IGetterSetter
+	for _, obj := range objs {
+		results = append(results, obj.(IGetterSetter))
+	}
+	return results, nil
 }

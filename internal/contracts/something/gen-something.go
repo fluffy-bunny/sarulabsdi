@@ -58,6 +58,16 @@ func GetISomethingFromContainer(ctn di.Container) ISomething {
 	return ctn.GetByType(ReflectTypeISomething).(ISomething)
 }
 
+// GetManyISomethingFromContainer alternative to SafeGetManyISomethingFromContainer but panics of object is not present
+func GetManyISomethingFromContainer(ctn di.Container) []ISomething {
+	objs := ctn.GetManyByType(ReflectTypeISomething)
+	var results []ISomething
+	for _, obj := range objs {
+		results = append(results, obj.(ISomething))
+	}
+	return results
+}
+
 // SafeGetISomethingFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetISomethingFromContainer(ctn di.Container) (ISomething, error) {
 	obj, err := ctn.SafeGetByType(ReflectTypeISomething)
@@ -65,4 +75,17 @@ func SafeGetISomethingFromContainer(ctn di.Container) (ISomething, error) {
 		return nil, err
 	}
 	return obj.(ISomething), nil
+}
+
+// SafeGetManyISomethingFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetManyISomethingFromContainer(ctn di.Container) ([]ISomething, error) {
+	objs, err := ctn.SafeGetManyByType(ReflectTypeISomething)
+	if err != nil {
+		return nil, err
+	}
+	var results []ISomething
+	for _, obj := range objs {
+		results = append(results, obj.(ISomething))
+	}
+	return results, nil
 }
