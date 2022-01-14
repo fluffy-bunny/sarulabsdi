@@ -31,7 +31,7 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByFunc(t *testing.T)
 	// The last object added
 
 	var app = b.Build()
-
+	app, _ = app.SubContainer()
 	// get the type of the object we want to retrieve
 	rt := reflect.TypeOf(&getterSetterContainer{})
 
@@ -91,6 +91,56 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *testing.T) 
 	rt := reflect.TypeOf(&getterSetterContainer{})
 
 	obj1, err := app.SafeGetByType(rt)
+	require.Nil(t, err)
+
+	// value must be of the last one added
+	exected := 2
+	require.Equal(t, exected, obj1.(*getterSetterContainer).GetterSetter.GetValue())
+
+	require.Equal(t, 2, obj1.(*getterSetterContainer).GetterSetters[0].GetValue())
+	require.Equal(t, 1, obj1.(*getterSetterContainer).GetterSetters[1].GetValue())
+
+	manyGetterSetters := contracts_gettersetter.GetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
+
+	manyGetterSetters, err = contracts_gettersetter.SafeGetManyIGetterSetterFromContainer(app)
+	require.NotNil(t, manyGetterSetters)
+	require.NoError(t, err)
+	require.NotEmpty(t, manyGetterSetters)
+	require.Equal(t, 2, manyGetterSetters[0].GetValue())
+	require.Equal(t, 1, manyGetterSetters[1].GetValue())
+
+}
+
+func TestTypedObjects_SCOPED_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *testing.T) {
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	mockGetterSetter := mocks_gettersetter.NewMockIGetterSetter(ctrl)
+	mockGetterSetter.EXPECT().GetValue().Return(2).AnyTimes()
+	b, _ := di.NewBuilder()
+
+	// Add 2 of the same type
+	contracts_gettersetter.AddSingletonIGetterSetterByFunc(b, reflect.TypeOf(&getterSetterService{}), func(ctn di.Container) (interface{}, error) {
+		return &getterSetterService{
+			Value: 1,
+		}, nil
+	})
+	contracts_gettersetter.AddSingletonIGetterSetterByObj(b, mockGetterSetter)
+	di.AddScoped(b, reflect.TypeOf(&getterSetterContainer{}))
+
+	// The last object added
+
+	app := b.Build()
+	request, err := app.SubContainer()
+	require.NoError(t, err)
+	// get the type of the object we want to retrieve
+	rt := reflect.TypeOf(&getterSetterContainer{})
+
+	obj1, err := request.SafeGetByType(rt)
 	require.Nil(t, err)
 
 	// value must be of the last one added
