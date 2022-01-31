@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strings"
+
+	"github.com/fluffy-bunny/sarulabsdi/internal/methodinspect"
 )
 
 // Builder can be used to create a Container.
@@ -134,6 +137,27 @@ func (b *Builder) add(def Def) error {
 
 	for rt := range def.ImplementedTypes {
 		if rt.Kind() == reflect.Interface {
+			objMethodInspect, err := methodinspect.NewMethodInspect(def.Type)
+			if err != nil {
+				panic(err)
+			}
+
+			implements, missingMethods, err := objMethodInspect.Implements(rt)
+			if err != nil {
+				panic(err)
+			}
+			if !implements {
+				builder := strings.Builder{}
+				name := def.Type.Elem().Name()
+				builder.WriteString(fmt.Sprintf("the object %s does not implement the interface %s\n", name, rt.Name()))
+				builder.WriteString("missing methods:\n")
+				for _, method := range missingMethods {
+					builder.WriteString(fmt.Sprintf("\t%s\n", method))
+				}
+				fmt.Println(builder.String())
+				panic(fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt)))
+			}
+
 			if !def.Type.Implements(rt) {
 				panic(fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt)))
 			}
