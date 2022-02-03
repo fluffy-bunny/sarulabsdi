@@ -13,23 +13,23 @@ import (
 func TestTimeFuncNow(t *testing.T) {
 	builder, _ := di.NewBuilder()
 	AddTimeNow(builder)
-	AddTimeNowFunc(builder, NewMockITimeYearMonthDate(2022, time.January))
+	contracts_timefuncs.AddTimeNowFunc(builder, NewMockITimeYearMonthDate(2022, time.January))
 	AddSingletonITimeHost(builder)
 
 	app := builder.Build()
 	require.NotNil(t, app)
-	now, err := app.SafeGetByType(contracts_timefuncs.RT_Now)
+	now, err := contracts_timefuncs.SafeGetTimeNowFromContainer(app)
 	require.NoError(t, err)
 	require.NotNil(t, now)
-	d := now.(func() time.Time)()
+	d := now()
 	require.NotNil(t, d)
 	fmt.Println(d)
 
-	nows, err := app.SafeGetManyByType(contracts_timefuncs.RT_Now)
+	nows, err := contracts_timefuncs.SafeGetManyTimeNowFromContainer(app)
 	require.NoError(t, err)
 	require.NotNil(t, nows)
 	for _, now := range nows {
-		d := now.(func() time.Time)()
+		d := now()
 		require.NotNil(t, d)
 		fmt.Println(d)
 	}

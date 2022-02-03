@@ -58,14 +58,9 @@ func Now() time.Time {
 	return time.Now()
 }
 
-// AddTimeNowFunc adds a singleton of Now to the container
-func AddTimeNowFunc(builder *di.Builder, now func() time.Time) {
-	di.AddFunc(builder, now)
-}
-
 // AddTimeNow adds a singleton of Now to the container
 func AddTimeNow(builder *di.Builder) {
-	AddTimeNowFunc(builder, Now)
+	contracts_timefuncs.AddTimeNowFunc(builder, Now)
 }
 
 type (
@@ -81,4 +76,3 @@ func (s *service) Now() time.Time {
 func AddSingletonITimeHost(builder *di.Builder) {
 	contracts_timefuncs.AddSingletonITimeHost(builder, reflect.TypeOf(&service{}))
 }
-
