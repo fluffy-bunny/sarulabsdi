@@ -14,6 +14,81 @@ When used with Go modules, use the following import path:
 
 The following are non breaking changes to sarulabs/di.  
 
+## funcs in the DI
+You can register funcs in the di and those funcs can be injected into objects.  All funcs are Singletons.
+
+### Add time.Now
+```go
+func Now() time.Time {
+	return time.Now()
+}
+// soon to be a generic
+func AddTimeNowFunc(builder *di.Builder, fnc interface{}) {
+	if f, ok := fnc.(func() time.Time); ok {
+		di.AddFunc(builder, f)
+	} else {
+		panic("timefuncs.AddTimeNow: fnc must be a func() time.Time")
+	}
+}
+
+// AddTimeNow adds a singleton of Now to the container
+func AddTimeNow(builder *di.Builder) {
+	contracts_timefuncs.AddTimeNowFunc(builder, Now)
+}
+```
+### Func can be injected into object
+
+```go
+type (
+	service struct {
+		NowFunc func() time.Time `inject:""`
+	}
+)
+```
+
+### Getter helpers (this will be in generics soon)
+
+```go
+func GetTimeNowFromContainer(ctn di.Container) func() time.Time {
+	obj := ctn.GetByType(RT_Now)
+	if f, ok := obj.(func() time.Time); ok {
+		return f
+	} else {
+		panic("timefuncs.GetTimeNowFromContainer: obj must be a func() time.Time")
+	}
+}
+
+func GetManyTimeNowFromContainer(ctn di.Container) []func() time.Time {
+	objs := ctn.GetManyByType(RT_Now)
+	var results []func() time.Time
+	for _, obj := range objs {
+		results = append(results, obj.(func() time.Time))
+	}
+	return results
+}
+func SafeGetTimeNowFromContainer(ctn di.Container) (func() time.Time, error) {
+	obj, err := ctn.SafeGetByType(RT_Now)
+	if err != nil {
+		return nil, err
+	}
+	return obj.(func() time.Time), nil
+}
+
+func SafeGetManyTimeNowFromContainer(ctn di.Container) ([]func() time.Time, error) {
+	objs, err := ctn.SafeGetManyByType(RT_Now)
+	if err != nil {
+		return nil, err
+	}
+	var results []func() time.Time
+	for _, obj := range objs {
+		results = append(results, obj.(func() time.Time))
+	}
+	return results, nil
+}
+```
+
+You can add many Now() funcs, and if you ask for a single one you will get the last one added.  
+
 ## Same type multiple scopes
 
 You can register the same type, i.e. ```reflect.Type(&something{})``` as a singleton, transient or request.  As to who wins depends on registration order.
