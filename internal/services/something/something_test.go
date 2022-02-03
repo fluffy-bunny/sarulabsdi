@@ -8,6 +8,43 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNoConflictWithSameUnderlyingImplementation(t *testing.T) {
+	var err error
+	builer, _ := di.NewBuilder()
+	AddSingletonISomething(builer)
+	AddTransientISomething(builer)
+	AddScopedISomething(builer)
+
+	AddSingletonISomething2(builer)
+	AddTransientISomething2(builer)
+	AddScopedISomething2(builer)
+
+	AddSingletonISomething3(builer)
+	AddTransientISomething3(builer)
+	AddScopedISomething3(builer)
+
+	app := builer.Build()
+
+	request, err := app.SubContainer()
+	require.Nil(t, err)
+
+	meSomething := contracts_something.GetISomethingFromContainer(app)
+	require.NotNil(t, meSomething)
+	require.Equal(t, "transient", meSomething.GetName())
+
+	meSomething2 := contracts_something.GetISomething2FromContainer(app)
+	require.NotNil(t, meSomething2)
+	require.Equal(t, "transient2", meSomething2.GetName())
+
+	meSomething3 := contracts_something.GetISomething3FromContainer(app)
+	require.NotNil(t, meSomething3)
+	require.Equal(t, "transient3", meSomething3.GetName())
+
+	meSomething = contracts_something.GetISomethingFromContainer(request)
+	require.NotNil(t, meSomething)
+	require.Equal(t, "scoped", meSomething.GetName())
+}
+
 func TestSameTypeAsSingletonTransientScoped(t *testing.T) {
 	var err error
 	b, _ := di.NewBuilder()

@@ -80,6 +80,23 @@ func AddScopedWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, buil
 	return def
 }
 
+// AddFunc adds a simple singleton type
+func AddFunc(builder *Builder, fnc interface{}) Def {
+	rt := reflect.TypeOf(fnc)
+	implementedTypes2 := NewTypeSet()
+	implementedTypes2.Add(rt)
+	def := Def{
+		Scope:            App, // Singleton
+		Type:             rt,
+		ImplementedTypes: implementedTypes2,
+		SafeInject:       true,  // don't panic
+		Unshared:         false, // Singleton
+		Func:             fnc,
+	}
+	builder.Add(def)
+	return def
+}
+
 // AddSingleton adds a simple singleton type
 func AddSingleton(builder *Builder, rt reflect.Type) Def {
 	return AddSingletonWithImplementedTypes(builder, rt)

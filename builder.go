@@ -117,14 +117,24 @@ func (b *Builder) add(def Def) error {
 			def.hasClose = numIn == 1
 		}
 
-		def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
+		if def.Type.Kind() == reflect.Func {
+			def.Name = GenerateUniqueServiceKeyFromType(def.Type)
+		} else {
+			def.Name = GenerateUniqueServiceKeyFromType(def.Type.Elem())
+		}
+
 		if def.ImplementedTypes == nil {
 			def.ImplementedTypes = NewTypeSet()
 		}
 		// automatically add the type of the root object
 		def.ImplementedTypes.Add(def.Type)
 		if def.Build == nil {
-			def.Build = MakeDefaultBuildByType(def.Type.Elem(), def)
+			if def.Type.Kind() == reflect.Func {
+				def.Build = MakeFuncBuild(def)
+			} else {
+				def.Build = MakeDefaultBuildByType(def.Type.Elem(), def)
+			}
+
 		}
 		if def.hasClose && def.Close == nil {
 			def.Close = MakeDefaultCloseByType(def)
@@ -136,7 +146,9 @@ func (b *Builder) add(def Def) error {
 	}
 
 	for rt := range def.ImplementedTypes {
-		if rt.Kind() == reflect.Interface {
+		switch rt.Kind() {
+		case reflect.Func:
+		case reflect.Interface:
 			objMethodInspect, err := methodinspect.NewMethodInspect(def.Type)
 			if err != nil {
 				panic(err)
@@ -161,11 +173,12 @@ func (b *Builder) add(def Def) error {
 			if !def.Type.Implements(rt) {
 				panic(fmt.Errorf("%v does not implement %v", def.Name, getTypeFullPath(rt)))
 			}
-		} else {
+		default:
 			if def.Type != rt {
 				panic(fmt.Errorf("%v is not of type %v", def.Name, getTypeFullPath(rt)))
 			}
 		}
+
 	}
 
 	// note that an empty scope is allowed
@@ -229,11 +242,13 @@ func (b *Builder) Build() Container {
 
 		for rt := range def.ImplementedTypes {
 			var key reflect.Type
-			if rt.Kind() == reflect.Interface {
+			switch rt.Kind() {
+			case reflect.Func, reflect.Interface:
 				key = rt
-			} else {
+			default:
 				key = rt.Elem()
 			}
+
 			rtDefMap[key] = append(rtDefMap[key], &def)
 		}
 	}
