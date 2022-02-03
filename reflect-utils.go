@@ -54,7 +54,11 @@ func MakeDefaultCloseByType(def Def) func(obj interface{}) error {
 		return nil
 	}
 }
-
+func MakeFuncBuild(def Def) func(ctn Container) (interface{}, error) {
+	return func(ctn Container) (interface{}, error) {
+		return def.Func, nil
+	}
+}
 func MakeDefaultBuildByType(rtElem reflect.Type, def Def) func(ctn Container) (interface{}, error) {
 
 	objMaker := MakeInjectBuilderFunc(rtElem, def)
@@ -67,6 +71,11 @@ func MakeDefaultBuildByType(rtElem reflect.Type, def Def) func(ctn Container) (i
 
 // MakeInjectBuilderFunc is EXPENSIVE consider making direct calls to GetByType and GetManyByType directly
 func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst interface{}) (interface{}, error) {
+	if rt.Kind() == reflect.Func {
+		return func(ctn Container, dst interface{}) (interface{}, error) {
+			return dst, nil
+		}
+	}
 	setters := []func(ctn Container, dst interface{}){}
 	for i := 0; i < rt.NumField(); i++ {
 		field := rt.Field(i)

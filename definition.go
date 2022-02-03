@@ -33,6 +33,7 @@ type Def struct {
 	SafeInject       bool
 	hasCtor          bool
 	hasClose         bool
+	Func             interface{}
 }
 
 // Tag can contain more specific information about a Definition.
