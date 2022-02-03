@@ -1,9 +1,11 @@
 package timefuncs
 
 import (
+	"reflect"
 	"time"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
+	contracts_timefuncs "github.com/fluffy-bunny/sarulabsdi/internal/contracts/timefuncs"
 )
 
 var (
@@ -64,4 +66,18 @@ func AddTimeNowFunc(builder *di.Builder, now func() time.Time) {
 // AddTimeNow adds a singleton of Now to the container
 func AddTimeNow(builder *di.Builder) {
 	AddTimeNowFunc(builder, Now)
+}
+
+type (
+	service struct {
+		NowFunc func() time.Time `inject:""`
+	}
+)
+
+func (s *service) Now() time.Time {
+	return s.NowFunc()
+}
+
+func AddSingletonITimeHost(builder *di.Builder) {
+	contracts_timefuncs.AddSingletonITimeHost(builder, reflect.TypeOf(&service{}))
 }

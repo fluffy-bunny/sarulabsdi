@@ -7,8 +7,14 @@ import (
 	di "github.com/fluffy-bunny/sarulabsdi"
 )
 
+//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/interface-types.go -out=gen-$GOFILE gen "InterfaceType=ITimeHost"
+
+//go:generate mockgen -package=$GOPACKAGE -destination=../../mocks/$GOPACKAGE/mock_$GOFILE github.com/fluffy-bunny/sarulabsdi/internal/contracts/$GOPACKAGE ITimeHost
+
 type (
-	Now func() time.Time
+	ITimeHost interface {
+		Now() time.Time
+	}
 )
 
 var (
