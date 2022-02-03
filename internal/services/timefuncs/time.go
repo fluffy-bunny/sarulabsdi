@@ -81,3 +81,4 @@ func (s *service) Now() time.Time {
 func AddSingletonITimeHost(builder *di.Builder) {
 	contracts_timefuncs.AddSingletonITimeHost(builder, reflect.TypeOf(&service{}))
 }
+
