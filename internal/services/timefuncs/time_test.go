@@ -14,6 +14,8 @@ func TestTimeFuncNow(t *testing.T) {
 	builder, _ := di.NewBuilder()
 	AddTimeNow(builder)
 	AddTimeNowFunc(builder, NewMockITimeYearMonthDate(2022, time.January))
+	AddSingletonITimeHost(builder)
+
 	app := builder.Build()
 	require.NotNil(t, app)
 	now, err := app.SafeGetByType(contracts_timefuncs.RT_Now)
@@ -31,4 +33,13 @@ func TestTimeFuncNow(t *testing.T) {
 		require.NotNil(t, d)
 		fmt.Println(d)
 	}
+
+	host, err := contracts_timefuncs.SafeGetITimeHostFromContainer(app)
+	require.NoError(t, err)
+	require.NotNil(t, host)
+	tNow := host.Now()
+	fmt.Println(tNow)
+
+	require.Equal(t, "2022-01-01 00:00:00 +0000 UTC", tNow.Format("2006-01-02 15:04:05 -0700 MST"))
+
 }
