@@ -36,6 +36,8 @@ AddTimeNow(builder)
 app := builder.Build()
 rtNow := reflect.TypeOf(TimeNow(nil))
 obj := app.GetByType(rtNow)
+tNow := obj.(TimeNow)
+currentTime := tNow()
 ```
 ### Func can be injected into object
 
