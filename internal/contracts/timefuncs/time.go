@@ -1,5 +1,9 @@
 package timefuncs
 
+//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/interface-types.go -out=gen-$GOFILE gen "InterfaceType=ITime"
+
+//go:generate mockgen -package=$GOPACKAGE -destination=../../mocks/$GOPACKAGE/mock_$GOFILE github.com/fluffy-bunny/sarulabsdi/internal/contracts/$GOPACKAGE ITime
+
 import (
 	"reflect"
 	"time"
@@ -7,61 +11,54 @@ import (
 	di "github.com/fluffy-bunny/sarulabsdi"
 )
 
-//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/interface-types.go -out=gen-$GOFILE gen "InterfaceType=ITimeHost"
-
-//go:generate mockgen -package=$GOPACKAGE -destination=../../mocks/$GOPACKAGE/mock_$GOFILE github.com/fluffy-bunny/sarulabsdi/internal/contracts/$GOPACKAGE ITimeHost
-
 type (
-	ITimeHost interface {
+	ITime interface {
 		Now() time.Time
 	}
+	TimeNow func() time.Time
 )
 
 var (
-	RT_Now = reflect.TypeOf((func() time.Time)(nil))
+	RT_Now = reflect.TypeOf(TimeNow(nil))
 )
 
-func AddTimeNowFunc(builder *di.Builder, fnc interface{}) {
-	if f, ok := fnc.(func() time.Time); ok {
-		di.AddFunc(builder, f)
-	} else {
-		panic("timefuncs.AddTimeNow: fnc must be a func() time.Time")
-	}
+func AddTimeNowFunc(builder *di.Builder, fnc TimeNow) {
+	di.AddFunc(builder, fnc)
 }
 
-func GetTimeNowFromContainer(ctn di.Container) func() time.Time {
+func GetTimeNowFromContainer(ctn di.Container) TimeNow {
 	obj := ctn.GetByType(RT_Now)
-	if f, ok := obj.(func() time.Time); ok {
+	if f, ok := obj.(TimeNow); ok {
 		return f
 	} else {
-		panic("timefuncs.GetTimeNowFromContainer: obj must be a func() time.Time")
+		panic("timefuncs.GetTimeNowFromContainer: obj must be a TimeNow")
 	}
 }
 
-func GetManyTimeNowFromContainer(ctn di.Container) []func() time.Time {
+func GetManyTimeNowFromContainer(ctn di.Container) []TimeNow {
 	objs := ctn.GetManyByType(RT_Now)
-	var results []func() time.Time
+	var results []TimeNow
 	for _, obj := range objs {
-		results = append(results, obj.(func() time.Time))
+		results = append(results, obj.(TimeNow))
 	}
 	return results
 }
-func SafeGetTimeNowFromContainer(ctn di.Container) (func() time.Time, error) {
+func SafeGetTimeNowFromContainer(ctn di.Container) (TimeNow, error) {
 	obj, err := ctn.SafeGetByType(RT_Now)
 	if err != nil {
 		return nil, err
 	}
-	return obj.(func() time.Time), nil
+	return obj.(TimeNow), nil
 }
 
-func SafeGetManyTimeNowFromContainer(ctn di.Container) ([]func() time.Time, error) {
+func SafeGetManyTimeNowFromContainer(ctn di.Container) ([]TimeNow, error) {
 	objs, err := ctn.SafeGetManyByType(RT_Now)
 	if err != nil {
 		return nil, err
 	}
-	var results []func() time.Time
+	var results []TimeNow
 	for _, obj := range objs {
-		results = append(results, obj.(func() time.Time))
+		results = append(results, obj.(TimeNow))
 	}
 	return results, nil
 }

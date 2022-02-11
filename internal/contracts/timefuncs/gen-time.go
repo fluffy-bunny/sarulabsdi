@@ -10,82 +10,82 @@ import (
 	di "github.com/fluffy-bunny/sarulabsdi"
 )
 
-// ReflectTypeITimeHost used when your service claims to implement ITimeHost
-var ReflectTypeITimeHost = di.GetInterfaceReflectType((*ITimeHost)(nil))
+// ReflectTypeITime used when your service claims to implement ITime
+var ReflectTypeITime = di.GetInterfaceReflectType((*ITime)(nil))
 
-// AddSingletonITimeHostByObj adds a prebuilt obj
-func AddSingletonITimeHostByObj(builder *di.Builder, obj interface{}) {
-	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeITimeHost)
+// AddSingletonITimeByObj adds a prebuilt obj
+func AddSingletonITimeByObj(builder *di.Builder, obj interface{}) {
+	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeITime)
 }
 
-// AddSingletonITimeHost adds a type that implements ITimeHost
-func AddSingletonITimeHost(builder *di.Builder, implType reflect.Type) {
-	di.AddSingletonWithImplementedTypes(builder, implType, ReflectTypeITimeHost)
+// AddSingletonITime adds a type that implements ITime
+func AddSingletonITime(builder *di.Builder, implType reflect.Type) {
+	di.AddSingletonWithImplementedTypes(builder, implType, ReflectTypeITime)
 }
 
-// AddSingletonITimeHostByFunc adds a type by a custom func
-func AddSingletonITimeHostByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITimeHost)
+// AddSingletonITimeByFunc adds a type by a custom func
+func AddSingletonITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITime)
 }
 
-// AddTransientITimeHost adds a type that implements ITimeHost
-func AddTransientITimeHost(builder *di.Builder, implType reflect.Type) {
-	di.AddTransientWithImplementedTypes(builder, implType, ReflectTypeITimeHost)
+// AddTransientITime adds a type that implements ITime
+func AddTransientITime(builder *di.Builder, implType reflect.Type) {
+	di.AddTransientWithImplementedTypes(builder, implType, ReflectTypeITime)
 }
 
-// AddTransientITimeHostByFunc adds a type by a custom func
-func AddTransientITimeHostByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITimeHost)
+// AddTransientITimeByFunc adds a type by a custom func
+func AddTransientITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITime)
 }
 
-// AddScopedITimeHost adds a type that implements ITimeHost
-func AddScopedITimeHost(builder *di.Builder, implType reflect.Type) {
-	di.AddScopedWithImplementedTypes(builder, implType, ReflectTypeITimeHost)
+// AddScopedITime adds a type that implements ITime
+func AddScopedITime(builder *di.Builder, implType reflect.Type) {
+	di.AddScopedWithImplementedTypes(builder, implType, ReflectTypeITime)
 }
 
-// AddScopedITimeHostByFunc adds a type by a custom func
-func AddScopedITimeHostByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITimeHost)
+// AddScopedITimeByFunc adds a type by a custom func
+func AddScopedITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeITime)
 }
 
-// RemoveAllITimeHost removes all ITimeHost from the DI
-func RemoveAllITimeHost(builder *di.Builder) {
-	builder.RemoveAllByType(ReflectTypeITimeHost)
+// RemoveAllITime removes all ITime from the DI
+func RemoveAllITime(builder *di.Builder) {
+	builder.RemoveAllByType(ReflectTypeITime)
 }
 
-// GetITimeHostFromContainer alternative to SafeGetITimeHostFromContainer but panics of object is not present
-func GetITimeHostFromContainer(ctn di.Container) ITimeHost {
-	return ctn.GetByType(ReflectTypeITimeHost).(ITimeHost)
+// GetITimeFromContainer alternative to SafeGetITimeFromContainer but panics of object is not present
+func GetITimeFromContainer(ctn di.Container) ITime {
+	return ctn.GetByType(ReflectTypeITime).(ITime)
 }
 
-// GetManyITimeHostFromContainer alternative to SafeGetManyITimeHostFromContainer but panics of object is not present
-func GetManyITimeHostFromContainer(ctn di.Container) []ITimeHost {
-	objs := ctn.GetManyByType(ReflectTypeITimeHost)
-	var results []ITimeHost
+// GetManyITimeFromContainer alternative to SafeGetManyITimeFromContainer but panics of object is not present
+func GetManyITimeFromContainer(ctn di.Container) []ITime {
+	objs := ctn.GetManyByType(ReflectTypeITime)
+	var results []ITime
 	for _, obj := range objs {
-		results = append(results, obj.(ITimeHost))
+		results = append(results, obj.(ITime))
 	}
 	return results
 }
 
-// SafeGetITimeHostFromContainer trys to get the object by type, will not panic, returns nil and error
-func SafeGetITimeHostFromContainer(ctn di.Container) (ITimeHost, error) {
-	obj, err := ctn.SafeGetByType(ReflectTypeITimeHost)
+// SafeGetITimeFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetITimeFromContainer(ctn di.Container) (ITime, error) {
+	obj, err := ctn.SafeGetByType(ReflectTypeITime)
 	if err != nil {
 		return nil, err
 	}
-	return obj.(ITimeHost), nil
+	return obj.(ITime), nil
 }
 
-// SafeGetManyITimeHostFromContainer trys to get the object by type, will not panic, returns nil and error
-func SafeGetManyITimeHostFromContainer(ctn di.Container) ([]ITimeHost, error) {
-	objs, err := ctn.SafeGetManyByType(ReflectTypeITimeHost)
+// SafeGetManyITimeFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetManyITimeFromContainer(ctn di.Container) ([]ITime, error) {
+	objs, err := ctn.SafeGetManyByType(ReflectTypeITime)
 	if err != nil {
 		return nil, err
 	}
-	var results []ITimeHost
+	var results []ITime
 	for _, obj := range objs {
-		results = append(results, obj.(ITimeHost))
+		results = append(results, obj.(ITime))
 	}
 	return results, nil
 }

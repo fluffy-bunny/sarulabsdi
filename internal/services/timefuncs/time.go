@@ -8,6 +8,22 @@ import (
 	contracts_timefuncs "github.com/fluffy-bunny/sarulabsdi/internal/contracts/timefuncs"
 )
 
+type (
+	timeHost struct {
+		NowFunc contracts_timefuncs.TimeNow `inject:""`
+	}
+)
+
+func (s *timeHost) Now() time.Time {
+	return s.NowFunc()
+}
+func BuildBreak() contracts_timefuncs.ITime {
+	return &timeHost{}
+}
+func AddSingletonITime(builder *di.Builder) {
+	contracts_timefuncs.AddSingletonITime(builder, reflect.TypeOf(&timeHost{}))
+}
+
 var (
 	// Months ...
 	Months = []time.Month{
@@ -27,52 +43,34 @@ var (
 )
 
 // NewMockITimeYearMonthDate ...
-func NewMockITimeYearMonthDate(year int, month time.Month) func() time.Time {
+func NewMockITimeYearMonthDate(year int, month time.Month) contracts_timefuncs.TimeNow {
 	return NewMockITimeDate(year, month, 1, 0, 0, 0, 0, time.UTC)
 }
 
 // NewMockITimeYearMonthDayDate ...
-func NewMockITimeYearMonthDayDate(year int, month time.Month, day int) func() time.Time {
+func NewMockITimeYearMonthDayDate(year int, month time.Month, day int) contracts_timefuncs.TimeNow {
 	return NewMockITimeDate(year, month, day, 0, 0, 0, 0, time.UTC)
 }
 
 // NewMockITimeYearMonthDayHourDate ...
-func NewMockITimeYearMonthDayHourDate(year int, month time.Month, day int, hour int) func() time.Time {
+func NewMockITimeYearMonthDayHourDate(year int, month time.Month, day int, hour int) contracts_timefuncs.TimeNow {
 	return NewMockITimeDate(year, month, day, hour, 0, 0, 0, time.UTC)
 }
 
 // NewMockITimeYearMonthDayHourMinDate ...
-func NewMockITimeYearMonthDayHourMinDate(year int, month time.Month, day int, hour int, min int) func() time.Time {
+func NewMockITimeYearMonthDayHourMinDate(year int, month time.Month, day int, hour int, min int) contracts_timefuncs.TimeNow {
 	return NewMockITimeDate(year, month, day, hour, min, 0, 0, time.UTC)
 }
 
 // NewMockITimeDate ...
-func NewMockITimeDate(year int, month time.Month, day int, hour int, min int, sec int, nsec int, loc *time.Location) func() time.Time {
+func NewMockITimeDate(year int, month time.Month, day int, hour int, min int, sec int, nsec int, loc *time.Location) contracts_timefuncs.TimeNow {
 	mockTimeNow := time.Date(year, month, day, hour, min, sec, nsec, loc)
 	return func() time.Time {
 		return mockTimeNow
 	}
 }
 
-func Now() time.Time {
-	return time.Now()
-}
-
 // AddTimeNow adds a singleton of Now to the container
 func AddTimeNow(builder *di.Builder) {
-	contracts_timefuncs.AddTimeNowFunc(builder, Now)
-}
-
-type (
-	service struct {
-		NowFunc func() time.Time `inject:""`
-	}
-)
-
-func (s *service) Now() time.Time {
-	return s.NowFunc()
-}
-
-func AddSingletonITimeHost(builder *di.Builder) {
-	contracts_timefuncs.AddSingletonITimeHost(builder, reflect.TypeOf(&service{}))
+	contracts_timefuncs.AddTimeNowFunc(builder, time.Now)
 }
