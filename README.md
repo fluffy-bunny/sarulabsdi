@@ -19,30 +19,33 @@ You can register funcs in the di and those funcs can be injected into objects.  
 
 ### Add time.Now
 ```go
-func Now() time.Time {
-	return time.Now()
-}
-// soon to be a generic
-func AddTimeNowFunc(builder *di.Builder, fnc interface{}) {
-	if f, ok := fnc.(func() time.Time); ok {
-		di.AddFunc(builder, f)
-	} else {
-		panic("timefuncs.AddTimeNow: fnc must be a func() time.Time")
-	}
+type TimeNow func() time.Time
+
+
+func AddTimeNowFunc(builder *di.Builder, fnc TimeNow) {
+  di.AddFunc(builder, fnc)
 }
 
-// AddTimeNow adds a singleton of Now to the container
+// AddTimeNow adds a singleton of time.Now to the container
 func AddTimeNow(builder *di.Builder) {
-	contracts_timefuncs.AddTimeNowFunc(builder, Now)
+  contracts_timefuncs.AddTimeNowFunc(builder, time.Now)
 }
+
+builder, _ := di.NewBuilder()
+AddTimeNow(builder)
+app := builder.Build()
+rtNow := reflect.TypeOf(TimeNow(nil))
+obj := app.GetByType(rtNow)
+tNow := obj.(TimeNow)
+currentTime := tNow()
 ```
 ### Func can be injected into object
 
 ```go
 type (
-	service struct {
-		NowFunc func() time.Time `inject:""`
-	}
+  timeHost struct {
+    NowFunc contracts_timefuncs.TimeNow `inject:""`
+  }
 )
 ```
 
