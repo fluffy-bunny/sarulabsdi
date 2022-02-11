@@ -1,14 +1,13 @@
 package timefuncs
 
-//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/interface-types.go -out=gen-$GOFILE gen "InterfaceType=ITime,TimeNow"
+//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/func-types.go -out=gen-func-$GOFILE gen "FuncType=TimeNow"
+
+//go:generate genny   -pkg $GOPACKAGE     -in=../../../genny/interface-types.go -out=gen-$GOFILE gen "InterfaceType=ITime"
 
 //go:generate mockgen -package=$GOPACKAGE -destination=../../mocks/$GOPACKAGE/mock_$GOFILE github.com/fluffy-bunny/sarulabsdi/internal/contracts/$GOPACKAGE ITime
 
 import (
-	"reflect"
 	"time"
-
-	di "github.com/fluffy-bunny/sarulabsdi"
 )
 
 type (
@@ -17,11 +16,3 @@ type (
 	}
 	TimeNow func() time.Time
 )
-
-var (
-	RT_Now = reflect.TypeOf(TimeNow(nil))
-)
-
-func AddTimeNowFunc(builder *di.Builder, fnc TimeNow) {
-	di.AddFunc(builder, fnc)
-}
