@@ -89,3 +89,83 @@ func SafeGetManyITimeFromContainer(ctn di.Container) ([]ITime, error) {
 	}
 	return results, nil
 }
+
+// ReflectTypeTimeNow used when your service claims to implement TimeNow
+var ReflectTypeTimeNow = di.GetInterfaceReflectType((*TimeNow)(nil))
+
+// AddSingletonTimeNowByObj adds a prebuilt obj
+func AddSingletonTimeNowByObj(builder *di.Builder, obj interface{}) {
+	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeTimeNow)
+}
+
+// AddSingletonTimeNow adds a type that implements TimeNow
+func AddSingletonTimeNow(builder *di.Builder, implType reflect.Type) {
+	di.AddSingletonWithImplementedTypes(builder, implType, ReflectTypeTimeNow)
+}
+
+// AddSingletonTimeNowByFunc adds a type by a custom func
+func AddSingletonTimeNowByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, ReflectTypeTimeNow)
+}
+
+// AddTransientTimeNow adds a type that implements TimeNow
+func AddTransientTimeNow(builder *di.Builder, implType reflect.Type) {
+	di.AddTransientWithImplementedTypes(builder, implType, ReflectTypeTimeNow)
+}
+
+// AddTransientTimeNowByFunc adds a type by a custom func
+func AddTransientTimeNowByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, ReflectTypeTimeNow)
+}
+
+// AddScopedTimeNow adds a type that implements TimeNow
+func AddScopedTimeNow(builder *di.Builder, implType reflect.Type) {
+	di.AddScopedWithImplementedTypes(builder, implType, ReflectTypeTimeNow)
+}
+
+// AddScopedTimeNowByFunc adds a type by a custom func
+func AddScopedTimeNowByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
+	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeTimeNow)
+}
+
+// RemoveAllTimeNow removes all TimeNow from the DI
+func RemoveAllTimeNow(builder *di.Builder) {
+	builder.RemoveAllByType(ReflectTypeTimeNow)
+}
+
+// GetTimeNowFromContainer alternative to SafeGetTimeNowFromContainer but panics of object is not present
+func GetTimeNowFromContainer(ctn di.Container) TimeNow {
+	return ctn.GetByType(ReflectTypeTimeNow).(TimeNow)
+}
+
+// GetManyTimeNowFromContainer alternative to SafeGetManyTimeNowFromContainer but panics of object is not present
+func GetManyTimeNowFromContainer(ctn di.Container) []TimeNow {
+	objs := ctn.GetManyByType(ReflectTypeTimeNow)
+	var results []TimeNow
+	for _, obj := range objs {
+		results = append(results, obj.(TimeNow))
+	}
+	return results
+}
+
+// SafeGetTimeNowFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetTimeNowFromContainer(ctn di.Container) (TimeNow, error) {
+	obj, err := ctn.SafeGetByType(ReflectTypeTimeNow)
+	if err != nil {
+		return nil, err
+	}
+	return obj.(TimeNow), nil
+}
+
+// SafeGetManyTimeNowFromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetManyTimeNowFromContainer(ctn di.Container) ([]TimeNow, error) {
+	objs, err := ctn.SafeGetManyByType(ReflectTypeTimeNow)
+	if err != nil {
+		return nil, err
+	}
+	var results []TimeNow
+	for _, obj := range objs {
+		results = append(results, obj.(TimeNow))
+	}
+	return results, nil
+}
