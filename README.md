@@ -94,7 +94,7 @@ You can add many Now() funcs, and if you ask for a single one you will get the l
 
 ## Same type multiple scopes
 
-You can register the same type, i.e. ```reflect.Type(&something{})``` as a singleton, transient or request.  As to who wins depends on registration order.
+You can register the same type, i.e. ```reflect.Type(&something{})``` as a singleton, transient or scoped.  As to who wins depends on registration order.
 
 A singleton and transient are considered the same scope type and the last one registered wins.   In the context of a request container, the last scoped object wins, and if no scoped object exists then the last registed between the singleton and transient wins.  
 
@@ -360,3 +360,20 @@ func (m *mockObjectWithCtor) Ctor() {
     m.CtorCalled = true
 }
 ```
+
+## Close or Not to Close
+If your typed object contains the following ```Close``` method it will get called during the destruction of the container 
+
+```go
+type mockObjectWithCtor struct {
+        CtorCalled bool
+    }
+
+func (m *mockObjectWithCtor) Ctor() {
+    m.CtorCalled = true
+}
+func (m *mockObjectWithCtor) Close() {
+   // called when the container is torn down
+}
+```
+
