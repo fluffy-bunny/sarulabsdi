@@ -30,7 +30,6 @@ type Def struct {
 	Type             reflect.Type //[optional] only if you want to claim that this object also implements these types.
 	ImplementedTypes TypeSet
 	Unshared         bool
-	SafeInject       bool
 	hasCtor          bool
 	hasClose         bool
 	Func             interface{}

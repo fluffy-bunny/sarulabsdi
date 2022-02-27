@@ -84,9 +84,11 @@ func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst int
 		if err != nil {
 			panic(err)
 		}
-		if !hasKey("inject", tags) {
+		injectDirective, err := tags.Get("inject")
+		if err != nil {
 			continue
 		}
+		optional := injectDirective.Name == "optional"
 		rtField := field.Type
 		fieldName := field.Name
 		switch kind := rtField.Kind(); kind {
@@ -103,7 +105,7 @@ func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst int
 						sliceType := reflect.SliceOf(sliceElem)
 						sliceV := reflect.New(sliceType).Elem()
 						var objs []interface{}
-						if def.SafeInject {
+						if optional {
 							objs, _ = ctn.SafeGetManyByType(sliceElem)
 						} else {
 							objs = ctn.GetManyByType(sliceElem)
@@ -128,7 +130,7 @@ func MakeInjectBuilderFunc(rt reflect.Type, def Def) func(ctn Container, dst int
 					// the use of unexported struct fields.
 					if f.CanSet() {
 						var obj interface{}
-						if def.SafeInject {
+						if optional {
 							obj, _ = ctn.SafeGetByType(rtField)
 						} else {
 							obj = ctn.GetByType(rtField)

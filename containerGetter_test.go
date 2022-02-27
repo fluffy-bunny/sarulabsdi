@@ -862,6 +862,20 @@ func TestTypedObjects_slice_type(t *testing.T) {
 func TestTypedObjects_ReflectBuilder_panic(t *testing.T) {
 	b, _ := NewBuilder()
 	b.Add(Def{
+		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExistOptional{}),
+		Unshared: true,
+	})
+	var app = b.Build()
+
+	rt := reflect.TypeOf(&mockObjectDependencyDoesNotExistOptional{}).Elem()
+	obj := app.GetByType(rt)
+	require.NotNil(t, obj)
+
+}
+
+func TestTypedObjects_ReflectBuilder_panic_must(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
 		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
 		Unshared: true,
 	})
@@ -871,18 +885,28 @@ func TestTypedObjects_ReflectBuilder_panic(t *testing.T) {
 		app.GetByType(rt)
 	})
 }
-
+func TestTypedObjects_ReflectBuilder_panic_must_(t *testing.T) {
+	b, _ := NewBuilder()
+	b.Add(Def{
+		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
+		Unshared: true,
+	})
+	var app = b.Build()
+	assert.Panics(t, func() {
+		rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
+		app.GetByType(rt)
+	})
+}
 func TestTypedObjects_ReflectBuilder_panic_must_not(t *testing.T) {
 	b, _ := NewBuilder()
 	b.Add(Def{
-		Type:       reflect.TypeOf(&mockObjectDependencyDoesNotExist{}),
-		Unshared:   true,
-		SafeInject: true,
+		Type:     reflect.TypeOf(&mockObjectDependencyDoesNotExistOptional{}),
+		Unshared: true,
 	})
 	var app = b.Build()
 
-	rt := reflect.TypeOf(&mockObjectDependencyDoesNotExist{}).Elem()
-	obj := app.GetByType(rt).(*mockObjectDependencyDoesNotExist)
+	rt := reflect.TypeOf(&mockObjectDependencyDoesNotExistOptional{}).Elem()
+	obj := app.GetByType(rt).(*mockObjectDependencyDoesNotExistOptional)
 	assert.NotNil(t, obj)
 	assert.Nil(t, obj.NotHere)
 }
@@ -897,9 +921,8 @@ func TestTypedObjects_ReflectBuilder_Obj_with_CTOR_Close(t *testing.T) {
 
 	b, _ := NewBuilder()
 	b.Add(Def{
-		Type:       rtPtr,
-		Unshared:   true,
-		SafeInject: true,
+		Type:     rtPtr,
+		Unshared: true,
 	})
 	var app = b.Build()
 
