@@ -24,6 +24,9 @@ type (
 		GetterSetter  IGetterSetter   `inject:""`
 		GetterSetters []IGetterSetter `inject:""`
 	}
+	mockObjectDependencyDoesNotExistOptional struct {
+		NotHere IDoNotExist `inject:"optional"`
+	}
 	mockObjectDependencyDoesNotExist struct {
 		NotHere IDoNotExist `inject:""`
 	}

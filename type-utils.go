@@ -16,7 +16,6 @@ func AddTransientWithImplementedTypes(builder *Builder, rt reflect.Type, impleme
 	def := Def{
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true, // don't panic
 		Unshared:         true, // Transient
 	}
 	builder.Add(def)
@@ -32,7 +31,6 @@ func AddTransientWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, b
 	def := Def{
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true, // don't panic
 		Unshared:         true, // Transient
 		Build:            build,
 	}
@@ -55,7 +53,6 @@ func AddScopedWithImplementedTypes(builder *Builder, rt reflect.Type, implemente
 		Scope:            Request, // Scoped
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // singleton within scope
 	}
 	builder.Add(def)
@@ -72,7 +69,6 @@ func AddScopedWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, buil
 		Scope:            Request, // Scoped
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // singleton within scope
 		Build:            build,
 	}
@@ -89,7 +85,6 @@ func AddFunc(builder *Builder, fnc interface{}) Def {
 		Scope:            App, // Singleton
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // Singleton
 		Func:             fnc,
 	}
@@ -112,7 +107,6 @@ func AddSingletonWithImplementedTypes(builder *Builder, rt reflect.Type, impleme
 		Scope:            App, // Singleton
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // Singleton
 	}
 	builder.Add(def)
@@ -129,7 +123,6 @@ func AddSingletonWithImplementedTypesByFunc(builder *Builder, rt reflect.Type, b
 		Scope:            App, // Singleton
 		Type:             rt,
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // Singleton
 		Build:            build,
 	}
@@ -147,7 +140,6 @@ func AddSingletonWithImplementedTypesByObj(builder *Builder, obj interface{}, im
 		Scope:            App, // Singleton
 		Type:             reflect.TypeOf(obj),
 		ImplementedTypes: implementedTypes2,
-		SafeInject:       true,  // don't panic
 		Unshared:         false, // Singleton
 		Build: func(ctn Container) (interface{}, error) {
 			return obj, nil
@@ -164,8 +156,7 @@ func AddSingletonTypeByObj(builder *Builder, obj interface{}) Def {
 		Type:  reflect.TypeOf(obj),
 		// SafeInject MUST be true because the following CAN be nil
 		// Dialer kafkaContracts.IKafkaDialer `inject:""`
-		SafeInject: true,  // don't panic
-		Unshared:   false, // Singleton
+		Unshared: false, // Singleton
 		Build: func(ctn Container) (interface{}, error) {
 			return obj, nil
 		},
