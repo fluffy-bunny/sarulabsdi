@@ -14,6 +14,22 @@ When used with Go modules, use the following import path:
 
 The following are non breaking changes to sarulabs/di.  
 
+## Inject tag
+
+Dependencies will be injected if tagged and will panic if a dependency isn't in the container.
+Unless you use the ```optional``` value.  In the case of optional, the dependency will **NOT** panic if it isn't present and the value in your struct will be nil.  
+
+```go
+type mockObject3 struct {
+  NowFunc       contracts_timefuncs.TimeNow `inject:""`
+  GetterSetter  IGetterSetter               `inject:""`
+  GetterSetters []IGetterSetter             `inject:""`
+  DoesNotExits  ISomething                  `inject:"optional"`
+}
+```
+
+
+
 ## funcs in the DI
 You can register funcs in the di and those funcs can be injected into objects.  All funcs are Singletons.
 
