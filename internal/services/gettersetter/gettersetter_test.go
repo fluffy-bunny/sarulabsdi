@@ -11,6 +11,23 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestTypedObjects_ReflectBuilder_multi_interfaces_ByFunc(t *testing.T) {
+	b, _ := di.NewBuilder()
+	contracts_gettersetter.AddSingletonIGetterSetter(b, reflect.TypeOf(&getterSetterService{}), contracts_gettersetter.ReflectTypeIGetterSetter2)
+	var app = b.Build()
+	subApp, _ := app.SubContainer()
+
+	getterSetter := contracts_gettersetter.GetIGetterSetterFromContainer(app)
+	require.NotNil(t, getterSetter)
+	getterSetter2 := contracts_gettersetter.GetIGetterSetter2FromContainer(app)
+	require.NotNil(t, getterSetter2)
+
+	getterSetter = contracts_gettersetter.GetIGetterSetterFromContainer(subApp)
+	require.NotNil(t, getterSetter)
+	getterSetter2 = contracts_gettersetter.GetIGetterSetter2FromContainer(subApp)
+	require.NotNil(t, getterSetter2)
+
+}
 func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByFunc(t *testing.T) {
 	b, _ := di.NewBuilder()
 
