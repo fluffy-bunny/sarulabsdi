@@ -13,39 +13,46 @@ import (
 // ReflectTypeIGetterSetter used when your service claims to implement IGetterSetter
 var ReflectTypeIGetterSetter = di.GetInterfaceReflectType((*IGetterSetter)(nil))
 
-// AddSingletonIGetterSetterByObj adds a prebuilt obj
-func AddSingletonIGetterSetterByObj(builder *di.Builder, obj interface{}) {
-	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeIGetterSetter)
+// AddSingletonIGetterSetter adds a type that implements IGetterSetter
+func AddSingletonIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddSingletonWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
-// AddSingletonIGetterSetter adds a type that implements IGetterSetter
-func AddSingletonIGetterSetter(builder *di.Builder, implType reflect.Type) {
-	di.AddSingletonWithImplementedTypes(builder, implType, ReflectTypeIGetterSetter)
+// AddSingletonIGetterSetterByObj adds a prebuilt obj
+func AddSingletonIGetterSetterByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterByFunc adds a type by a custom func
-func AddSingletonIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, ReflectTypeIGetterSetter)
+func AddSingletonIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientIGetterSetter adds a type that implements IGetterSetter
-func AddTransientIGetterSetter(builder *di.Builder, implType reflect.Type) {
-	di.AddTransientWithImplementedTypes(builder, implType, ReflectTypeIGetterSetter)
+func AddTransientIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientIGetterSetterByFunc adds a type by a custom func
-func AddTransientIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, ReflectTypeIGetterSetter)
+func AddTransientIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedIGetterSetter adds a type that implements IGetterSetter
-func AddScopedIGetterSetter(builder *di.Builder, implType reflect.Type) {
-	di.AddScopedWithImplementedTypes(builder, implType, ReflectTypeIGetterSetter)
+func AddScopedIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedIGetterSetterByFunc adds a type by a custom func
-func AddScopedIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeIGetterSetter)
+func AddScopedIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // RemoveAllIGetterSetter removes all IGetterSetter from the DI
@@ -86,6 +93,93 @@ func SafeGetManyIGetterSetterFromContainer(ctn di.Container) ([]IGetterSetter, e
 	var results []IGetterSetter
 	for _, obj := range objs {
 		results = append(results, obj.(IGetterSetter))
+	}
+	return results, nil
+}
+
+// ReflectTypeIGetterSetter2 used when your service claims to implement IGetterSetter2
+var ReflectTypeIGetterSetter2 = di.GetInterfaceReflectType((*IGetterSetter2)(nil))
+
+// AddSingletonIGetterSetter2 adds a type that implements IGetterSetter2
+func AddSingletonIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddSingletonWithImplementedTypes(builder, implType, implementedTypes...)
+}
+
+// AddSingletonIGetterSetter2ByObj adds a prebuilt obj
+func AddSingletonIGetterSetter2ByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
+}
+
+// AddSingletonIGetterSetter2ByFunc adds a type by a custom func
+func AddSingletonIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
+}
+
+// AddTransientIGetterSetter2 adds a type that implements IGetterSetter2
+func AddTransientIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
+}
+
+// AddTransientIGetterSetter2ByFunc adds a type by a custom func
+func AddTransientIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
+}
+
+// AddScopedIGetterSetter2 adds a type that implements IGetterSetter2
+func AddScopedIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
+}
+
+// AddScopedIGetterSetter2ByFunc adds a type by a custom func
+func AddScopedIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
+}
+
+// RemoveAllIGetterSetter2 removes all IGetterSetter2 from the DI
+func RemoveAllIGetterSetter2(builder *di.Builder) {
+	builder.RemoveAllByType(ReflectTypeIGetterSetter2)
+}
+
+// GetIGetterSetter2FromContainer alternative to SafeGetIGetterSetter2FromContainer but panics of object is not present
+func GetIGetterSetter2FromContainer(ctn di.Container) IGetterSetter2 {
+	return ctn.GetByType(ReflectTypeIGetterSetter2).(IGetterSetter2)
+}
+
+// GetManyIGetterSetter2FromContainer alternative to SafeGetManyIGetterSetter2FromContainer but panics of object is not present
+func GetManyIGetterSetter2FromContainer(ctn di.Container) []IGetterSetter2 {
+	objs := ctn.GetManyByType(ReflectTypeIGetterSetter2)
+	var results []IGetterSetter2
+	for _, obj := range objs {
+		results = append(results, obj.(IGetterSetter2))
+	}
+	return results
+}
+
+// SafeGetIGetterSetter2FromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetIGetterSetter2FromContainer(ctn di.Container) (IGetterSetter2, error) {
+	obj, err := ctn.SafeGetByType(ReflectTypeIGetterSetter2)
+	if err != nil {
+		return nil, err
+	}
+	return obj.(IGetterSetter2), nil
+}
+
+// SafeGetManyIGetterSetter2FromContainer trys to get the object by type, will not panic, returns nil and error
+func SafeGetManyIGetterSetter2FromContainer(ctn di.Container) ([]IGetterSetter2, error) {
+	objs, err := ctn.SafeGetManyByType(ReflectTypeIGetterSetter2)
+	if err != nil {
+		return nil, err
+	}
+	var results []IGetterSetter2
+	for _, obj := range objs {
+		results = append(results, obj.(IGetterSetter2))
 	}
 	return results, nil
 }

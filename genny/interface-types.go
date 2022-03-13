@@ -13,39 +13,46 @@ type InterfaceType generic.Type
 // ReflectTypeInterfaceType used when your service claims to implement InterfaceType
 var ReflectTypeInterfaceType = di.GetInterfaceReflectType((*InterfaceType)(nil))
 
-// AddSingletonInterfaceTypeByObj adds a prebuilt obj
-func AddSingletonInterfaceTypeByObj(builder *di.Builder, obj interface{}) {
-	di.AddSingletonWithImplementedTypesByObj(builder, obj, ReflectTypeInterfaceType)
+// AddSingletonInterfaceType adds a type that implements InterfaceType
+func AddSingletonInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddSingletonWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
-// AddSingletonInterfaceType adds a type that implements InterfaceType
-func AddSingletonInterfaceType(builder *di.Builder, implType reflect.Type) {
-	di.AddSingletonWithImplementedTypes(builder, implType, ReflectTypeInterfaceType)
+// AddSingletonInterfaceTypeByObj adds a prebuilt obj
+func AddSingletonInterfaceTypeByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeByFunc adds a type by a custom func
-func AddSingletonInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
+func AddSingletonInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientInterfaceType adds a type that implements InterfaceType
-func AddTransientInterfaceType(builder *di.Builder, implType reflect.Type) {
-	di.AddTransientWithImplementedTypes(builder, implType, ReflectTypeInterfaceType)
+func AddTransientInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientInterfaceTypeByFunc adds a type by a custom func
-func AddTransientInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
+func AddTransientInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedInterfaceType adds a type that implements InterfaceType
-func AddScopedInterfaceType(builder *di.Builder, implType reflect.Type) {
-	di.AddScopedWithImplementedTypes(builder, implType, ReflectTypeInterfaceType)
+func AddScopedInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedInterfaceTypeByFunc adds a type by a custom func
-func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error)) {
-	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, ReflectTypeInterfaceType)
+func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
+	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
+	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // RemoveAllInterfaceType removes all InterfaceType from the DI
