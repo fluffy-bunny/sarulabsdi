@@ -32,6 +32,7 @@ type mockObject3 struct {
 
 ## funcs in the DI
 You can register funcs in the di and those funcs can be injected into objects.  All funcs are Singletons.
+You can register MANY funcs of the same TYPE, and when you request 1 it will be the last one added.  You can request MANY, and that will return all the funcs of the TYPE.  
 
 ### Add time.Now
 ```go
