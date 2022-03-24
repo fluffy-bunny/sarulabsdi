@@ -126,6 +126,18 @@ func SafeGetISomethingFromContainer(ctn di.Container) (ISomething, error) {
 	return obj.(ISomething), nil
 }
 
+// GetISomethingDefinition returns that last definition registered that this container can provide
+func GetISomethingDefinition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeISomething)
+	return def
+}
+
+// GetISomethingDefinitions returns all definitions that this container can provide
+func GetISomethingDefinitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeISomething)
+	return defs
+}
+
 // SafeGetManyISomethingFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetManyISomethingFromContainer(ctn di.Container) ([]ISomething, error) {
 	objs, err := ctn.SafeGetManyByType(ReflectTypeISomething)
@@ -255,6 +267,18 @@ func SafeGetISomething2FromContainer(ctn di.Container) (ISomething2, error) {
 	return obj.(ISomething2), nil
 }
 
+// GetISomething2Definition returns that last definition registered that this container can provide
+func GetISomething2Definition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeISomething2)
+	return def
+}
+
+// GetISomething2Definitions returns all definitions that this container can provide
+func GetISomething2Definitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeISomething2)
+	return defs
+}
+
 // SafeGetManyISomething2FromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetManyISomething2FromContainer(ctn di.Container) ([]ISomething2, error) {
 	objs, err := ctn.SafeGetManyByType(ReflectTypeISomething2)
@@ -382,6 +406,18 @@ func SafeGetISomething3FromContainer(ctn di.Container) (ISomething3, error) {
 		return nil, err
 	}
 	return obj.(ISomething3), nil
+}
+
+// GetISomething3Definition returns that last definition registered that this container can provide
+func GetISomething3Definition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeISomething3)
+	return def
+}
+
+// GetISomething3Definitions returns all definitions that this container can provide
+func GetISomething3Definitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeISomething3)
+	return defs
 }
 
 // SafeGetManyISomething3FromContainer trys to get the object by type, will not panic, returns nil and error

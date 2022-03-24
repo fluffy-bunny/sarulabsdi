@@ -126,6 +126,18 @@ func SafeGetITimeFromContainer(ctn di.Container) (ITime, error) {
 	return obj.(ITime), nil
 }
 
+// GetITimeDefinition returns that last definition registered that this container can provide
+func GetITimeDefinition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeITime)
+	return def
+}
+
+// GetITimeDefinitions returns all definitions that this container can provide
+func GetITimeDefinitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeITime)
+	return defs
+}
+
 // SafeGetManyITimeFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetManyITimeFromContainer(ctn di.Container) ([]ITime, error) {
 	objs, err := ctn.SafeGetManyByType(ReflectTypeITime)

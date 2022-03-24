@@ -126,6 +126,18 @@ func SafeGetIGetterSetterFromContainer(ctn di.Container) (IGetterSetter, error) 
 	return obj.(IGetterSetter), nil
 }
 
+// GetIGetterSetterDefinition returns that last definition registered that this container can provide
+func GetIGetterSetterDefinition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeIGetterSetter)
+	return def
+}
+
+// GetIGetterSetterDefinitions returns all definitions that this container can provide
+func GetIGetterSetterDefinitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeIGetterSetter)
+	return defs
+}
+
 // SafeGetManyIGetterSetterFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetManyIGetterSetterFromContainer(ctn di.Container) ([]IGetterSetter, error) {
 	objs, err := ctn.SafeGetManyByType(ReflectTypeIGetterSetter)
@@ -253,6 +265,18 @@ func SafeGetIGetterSetter2FromContainer(ctn di.Container) (IGetterSetter2, error
 		return nil, err
 	}
 	return obj.(IGetterSetter2), nil
+}
+
+// GetIGetterSetter2Definition returns that last definition registered that this container can provide
+func GetIGetterSetter2Definition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeIGetterSetter2)
+	return def
+}
+
+// GetIGetterSetter2Definitions returns all definitions that this container can provide
+func GetIGetterSetter2Definitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeIGetterSetter2)
+	return defs
 }
 
 // SafeGetManyIGetterSetter2FromContainer trys to get the object by type, will not panic, returns nil and error
