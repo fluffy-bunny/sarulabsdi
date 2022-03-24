@@ -51,6 +51,14 @@ type Container interface {
 	// If the object can not be created, it returns an error.
 	SafeGetByType(rt reflect.Type) (interface{}, error)
 
+	// GetDefinitionByType returns the defination of the last registrant of this type.
+	// These definitions represent the objects of this type that this Container can build.
+	GetDefinitionByType(rt reflect.Type) *Def
+
+	// GetDefinitionsByType returns the definations of the registrants of this type.
+	// These definitions represent all the objects of this type that this Container can build.
+	GetDefinitionsByType(rt reflect.Type) []*Def
+
 	// GetByType is similar to SafeGetByType but it does not return the error.
 	// Instead it panics.
 	GetByType(rt reflect.Type) interface{}

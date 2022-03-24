@@ -33,6 +33,7 @@ type Def struct {
 	hasCtor          bool
 	hasClose         bool
 	Func             interface{}
+	MetaData         map[string]interface{}
 }
 
 // Tag can contain more specific information about a Definition.

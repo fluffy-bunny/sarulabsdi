@@ -47,6 +47,38 @@ func (g *containerGetter) Fill(ctn *container, name string, dst interface{}) err
 	return fill(obj, dst)
 }
 
+func (g *containerGetter) GetDefinitionByType(ctn *container, rt reflect.Type) *Def {
+	if rt.Kind() == reflect.Ptr {
+		rt = rt.Elem()
+	}
+	defs, ok := ctn.typeDefMap[rt]
+	if ok {
+		if ctn.scope == "app" {
+			for _, def := range defs {
+				if def.Scope == "request" {
+					// special case because we may have the same type registered in both app and request scopes
+					// ignore anything but app scopes
+					continue
+				}
+				return def
+			}
+		} else if ctn.scope == "request" || ctn.scope == "subrequest" {
+			// only go after the first request scope first
+			var nonRequestdef []*Def
+			for _, def := range defs {
+				if def.Scope != "request" {
+					nonRequestdef = append(nonRequestdef, def)
+					continue
+				}
+				return def
+			}
+			return nonRequestdef[0]
+		}
+	}
+	return nil
+
+}
+
 func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (interface{}, error) {
 	rt := rtIn
 	if rt.Kind() == reflect.Ptr {
@@ -92,6 +124,14 @@ func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (inte
 	return nil, fmt.Errorf("could not get type of `%s` because the definition does not exist", getTypeFullPath(rt))
 }
 
+func (g *containerGetter) GetDefinitionsByType(ctn *container, rt reflect.Type) []*Def {
+	var result []*Def
+	defs, ok := ctn.typeDefMap[rt]
+	if !ok {
+		return result
+	}
+	return defs
+}
 func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
 	var result []interface{}
 	defs, ok := ctn.typeDefMap[rt]
@@ -108,7 +148,6 @@ func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]
 	}
 	return result, nil
 }
-
 func (g *containerGetter) SafeGet(ctn *container, name string) (interface{}, error) {
 	def, ok := ctn.definitions[name]
 	if !ok {

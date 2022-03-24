@@ -24,6 +24,17 @@ type container struct {
 	*containerUnscopedGetter
 }
 
+func assertImplementation() {
+	var _ Container = (*container)(nil)
+}
+
+func (ctn *container) GetDefinitionByType(rt reflect.Type) *Def {
+	return ctn.containerGetter.GetDefinitionByType(ctn, rt)
+}
+func (ctn *container) GetDefinitionsByType(rt reflect.Type) []*Def {
+	return ctn.containerGetter.GetDefinitionsByType(ctn, rt)
+}
+
 func (ctn *container) Parent() Container {
 	return ctn.containerLineage.Parent(ctn)
 }
