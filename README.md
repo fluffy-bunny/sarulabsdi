@@ -14,6 +14,25 @@ When used with Go modules, use the following import path:
 
 The following are non breaking changes to sarulabs/di.  
 
+## With metadata
+
+The definitions struct contains a Metadata field
+```go
+MetaData         map[string]interface{}
+```
+You can fetch all the Defs of a given type in context of a container.  
+```defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)```  
+
+Using a scoped container will ONLY give you defs that are scoped, singleton and transient.  Whereas using a singleton container, you will NOT get the scoped defs.  
+
+### Use case
+I want to register a bunch of HTTP handlers and I store the path ```/cars/:id``` in the metadata of the object that can services that request.  
+
+I then fetch all the defs that implement the ``IHandler``` type and do a mapping of; 
+
+map[string]string   =>  path->def.Name  
+I then Get the object by name and NOT type.
+
 ## Inject tag
 
 Dependencies will be injected if tagged and will panic if a dependency isn't in the container.
