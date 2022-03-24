@@ -126,6 +126,18 @@ func SafeGetInterfaceTypeFromContainer(ctn di.Container) (InterfaceType, error) 
 	return obj.(InterfaceType), nil
 }
 
+// GetInterfaceTypeDefinition returns that last definition registered that this container can provide
+func GetInterfaceTypeDefinition(ctn di.Container) *di.Def {
+	def := ctn.GetDefinitionByType(ReflectTypeInterfaceType)
+	return def
+}
+
+// GetInterfaceTypeDefinitions returns all definitions that this container can provide
+func GetInterfaceTypeDefinitions(ctn di.Container) []*di.Def {
+	defs := ctn.GetDefinitionsByType(ReflectTypeInterfaceType)
+	return defs
+}
+
 // SafeGetManyInterfaceTypeFromContainer trys to get the object by type, will not panic, returns nil and error
 func SafeGetManyInterfaceTypeFromContainer(ctn di.Container) ([]InterfaceType, error) {
 	objs, err := ctn.SafeGetManyByType(ReflectTypeInterfaceType)
