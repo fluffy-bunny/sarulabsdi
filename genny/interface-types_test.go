@@ -1,14 +1,17 @@
 package genny
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 type serviceInterfaceType struct {
+	Name string
 }
 type IJunkInterfaceType interface {
 }
@@ -183,4 +186,316 @@ func Test_transient_InterfaceType_ByFunc_SafeGet_Get(t *testing.T) {
 	scopedContainer, _ := singletonContainer.SubContainer()
 	subScopedContainer, _ := scopedContainer.SubContainer()
 	assert_transient_InterfaceType_SafeGet_Get(t, singletonContainer, scopedContainer, subScopedContainer)
+}
+func Test_singleton_InterfaceType_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		AddSingletonInterfaceTypeWithMetadata(builder, ReflectTypeServiceInterfaceType, metaData)
+	}
+	singletonContainer := builder.Build()
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{singletonContainer, scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		for _, def := range defs {
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_transient_InterfaceType_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		AddTransientInterfaceTypeWithMetadata(builder, ReflectTypeServiceInterfaceType, metaData)
+	}
+	singletonContainer := builder.Build()
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{singletonContainer, scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		for _, def := range defs {
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_scoped_InterfaceType_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		AddScopedInterfaceTypeWithMetadata(builder, ReflectTypeServiceInterfaceType, metaData)
+	}
+	singletonContainer := builder.Build()
+	def := singletonContainer.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+	require.Nil(t, def)
+
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		for _, def := range defs {
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_InterfaceType_ByObj_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		name := fmt.Sprintf("%d", i)
+		obj := &serviceInterfaceType{
+			Name: name,
+		}
+		AddSingletonInterfaceTypeByObjWithMetadata(builder, obj, metaData)
+	}
+	singletonContainer := builder.Build()
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{singletonContainer, scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+			require.Equal(t, obj.Name, "1")
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		i := 1
+		for _, def := range defs {
+			name := fmt.Sprintf("%d", i)
+			i--
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+				require.Equal(t, obj.Name, name)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_transient_InterfaceType_ByFunc_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		name := fmt.Sprintf("%d", i)
+		AddTransientInterfaceTypeByFuncWithMetadata(builder, ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
+			return &serviceInterfaceType{
+				Name: name,
+			}, nil
+		}, metaData)
+	}
+	singletonContainer := builder.Build()
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{singletonContainer, scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+			require.Equal(t, obj.Name, "1")
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		i := 1
+		for _, def := range defs {
+			name := fmt.Sprintf("%d", i)
+			i--
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+				require.Equal(t, obj.Name, name)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_singleton_InterfaceType_ByFunc_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		name := fmt.Sprintf("%d", i)
+		AddSingletonInterfaceTypeByFuncWithMetadata(builder, ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
+			return &serviceInterfaceType{
+				Name: name,
+			}, nil
+		}, metaData)
+	}
+	singletonContainer := builder.Build()
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{singletonContainer, scopedContainer, subScopedContainer}
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+			require.Equal(t, obj.Name, "1")
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		i := 1
+		for _, def := range defs {
+			name := fmt.Sprintf("%d", i)
+			i--
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+				require.Equal(t, obj.Name, name)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
+}
+func Test_scoped_InterfaceType_ByFunc_WithMetadata_SafeGet_Get(t *testing.T) {
+	builder, _ := di.NewBuilder()
+	metaData := map[string]interface{}{"key": "value"}
+	for i := 0; i < 2; i++ {
+		name := fmt.Sprintf("%d", i)
+		AddScopedInterfaceTypeByFuncWithMetadata(builder, ReflectTypeServiceInterfaceType, func(ctn di.Container) (interface{}, error) {
+			return &serviceInterfaceType{
+				Name: name,
+			}, nil
+		}, metaData)
+	}
+	singletonContainer := builder.Build()
+	def := singletonContainer.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+	require.Nil(t, def)
+
+	scopedContainer, _ := singletonContainer.SubContainer()
+	subScopedContainer, _ := scopedContainer.SubContainer()
+	containers := []di.Container{scopedContainer, subScopedContainer}
+
+	for _, container := range containers {
+		def := container.GetDefinitionByType(ReflectTypeServiceInterfaceType)
+		require.NotNil(t, def)
+		val, ok := def.MetaData["key"]
+		require.True(t, ok)
+		require.Equal(t, val, "value")
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			obj := container.Get(def.Name).(*serviceInterfaceType)
+			require.NotNil(t, obj)
+			require.Equal(t, obj.Name, "1")
+		}))
+		defs := container.GetDefinitionsByType(ReflectTypeServiceInterfaceType)
+		require.Len(t, defs, 2)
+		i := 1
+		for _, def := range defs {
+			name := fmt.Sprintf("%d", i)
+			i--
+			require.NotNil(t, def)
+			require.NotPanics(t, assert.PanicTestFunc(func() {
+				obj := container.Get(def.Name).(*serviceInterfaceType)
+				require.NotNil(t, obj)
+				require.Equal(t, obj.Name, name)
+			}))
+		}
+		objs, err := container.SafeGetManyByType(ReflectTypeServiceInterfaceType)
+		require.NoError(t, err)
+		require.Len(t, objs, 2)
+		require.NotPanics(t, assert.PanicTestFunc(func() {
+			objs := container.GetManyByType(ReflectTypeServiceInterfaceType)
+			require.Len(t, objs, 2)
+		}))
+	}
 }

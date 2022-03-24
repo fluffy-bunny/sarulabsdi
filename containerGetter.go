@@ -125,6 +125,9 @@ func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (inte
 }
 
 func (g *containerGetter) GetDefinitionsByType(ctn *container, rt reflect.Type) []*Def {
+	if rt.Kind() == reflect.Ptr {
+		rt = rt.Elem()
+	}
 	var result []*Def
 	defs, ok := ctn.typeDefMap[rt]
 	if !ok {
@@ -133,6 +136,9 @@ func (g *containerGetter) GetDefinitionsByType(ctn *container, rt reflect.Type) 
 	return defs
 }
 func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]interface{}, error) {
+	if rt.Kind() == reflect.Ptr {
+		rt = rt.Elem()
+	}
 	var result []interface{}
 	defs, ok := ctn.typeDefMap[rt]
 	if !ok {
