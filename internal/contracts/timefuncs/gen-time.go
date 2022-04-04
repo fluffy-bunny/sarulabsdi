@@ -6,94 +6,129 @@ package timefuncs
 
 import (
 	"reflect"
+	"strings"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
+	"github.com/rs/zerolog/log"
 )
 
 // ReflectTypeITime used when your service claims to implement ITime
 var ReflectTypeITime = di.GetInterfaceReflectType((*ITime)(nil))
 
+func _getImplementedITimeNames(implementedTypes ...reflect.Type) string {
+	builder := strings.Builder{}
+	for idx, implementedType := range implementedTypes {
+		builder.WriteString(implementedType.Name())
+		if idx < len(implementedTypes)-1 {
+			builder.WriteString(", ")
+		}
+	}
+	return builder.String()
+}
+
+func _logAddITime(scopeType string, implType reflect.Type, implementedTypes ...reflect.Type) {
+	log.Info().
+		Str("DI", scopeType).
+		Str("Implemented_Interfaces", _getImplementedITimeNames(implementedTypes...)).
+		Str("backing", implType.Elem().String()).
+		Send()
+}
+
 // AddSingletonITime adds a type that implements ITime
 func AddSingletonITime(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON", implType, implementedTypes...)
 	di.AddSingleton(builder, implType, implementedTypes...)
 }
 
 // AddSingletonITimeWithMetadata adds a type that implements ITime
 func AddSingletonITimeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON - with metadata", implType, implementedTypes...)
 	di.AddSingletonWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddSingletonITimeByObj adds a prebuilt obj
 func AddSingletonITimeByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON - by obj", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonITimeByObjWithMetadata adds a prebuilt obj
 func AddSingletonITimeByObjWithMetadata(builder *di.Builder, obj interface{}, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON - by obj,with metadata", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObjWithMetadata(builder, obj, metaData, implementedTypes...)
 }
 
 // AddSingletonITimeByFunc adds a type by a custom func
 func AddSingletonITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON - by func", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddSingletonITimeByFuncWithMetadata adds a type by a custom func
 func AddSingletonITimeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SINGLETON - by func,with metadata", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddTransientITime adds a type that implements ITime
 func AddTransientITime(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("TRANSIENT", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientITimeWithMetadata adds a type that implements ITime
 func AddTransientITimeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("TRANSIENT - with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddTransientITimeByFunc adds a type by a custom func
 func AddTransientITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("TRANSIENT - by func", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientITimeByFuncWithMetadata adds a type by a custom func
 func AddTransientITimeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("TRANSIENT - by func,with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddScopedITime adds a type that implements ITime
 func AddScopedITime(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SCOPED", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedITimeWithMetadata adds a type that implements ITime
 func AddScopedITimeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SCOPED - with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddScopedITimeByFunc adds a type by a custom func
 func AddScopedITimeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SCOPED - by func", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedITimeByFuncWithMetadata adds a type by a custom func
 func AddScopedITimeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeITime)
+	_logAddITime("SCOPED - by func,with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 

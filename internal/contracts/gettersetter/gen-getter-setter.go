@@ -6,94 +6,129 @@ package gettersetter
 
 import (
 	"reflect"
+	"strings"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
+	"github.com/rs/zerolog/log"
 )
 
 // ReflectTypeIGetterSetter used when your service claims to implement IGetterSetter
 var ReflectTypeIGetterSetter = di.GetInterfaceReflectType((*IGetterSetter)(nil))
 
+func _getImplementedIGetterSetterNames(implementedTypes ...reflect.Type) string {
+	builder := strings.Builder{}
+	for idx, implementedType := range implementedTypes {
+		builder.WriteString(implementedType.Name())
+		if idx < len(implementedTypes)-1 {
+			builder.WriteString(", ")
+		}
+	}
+	return builder.String()
+}
+
+func _logAddIGetterSetter(scopeType string, implType reflect.Type, implementedTypes ...reflect.Type) {
+	log.Info().
+		Str("DI", scopeType).
+		Str("Implemented_Interfaces", _getImplementedIGetterSetterNames(implementedTypes...)).
+		Str("backing", implType.Elem().String()).
+		Send()
+}
+
 // AddSingletonIGetterSetter adds a type that implements IGetterSetter
 func AddSingletonIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON", implType, implementedTypes...)
 	di.AddSingleton(builder, implType, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterWithMetadata adds a type that implements IGetterSetter
 func AddSingletonIGetterSetterWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON - with metadata", implType, implementedTypes...)
 	di.AddSingletonWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterByObj adds a prebuilt obj
 func AddSingletonIGetterSetterByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON - by obj", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterByObjWithMetadata adds a prebuilt obj
 func AddSingletonIGetterSetterByObjWithMetadata(builder *di.Builder, obj interface{}, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON - by obj,with metadata", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObjWithMetadata(builder, obj, metaData, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterByFunc adds a type by a custom func
 func AddSingletonIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON - by func", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddSingletonIGetterSetterByFuncWithMetadata adds a type by a custom func
 func AddSingletonIGetterSetterByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SINGLETON - by func,with metadata", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddTransientIGetterSetter adds a type that implements IGetterSetter
 func AddTransientIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("TRANSIENT", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientIGetterSetterWithMetadata adds a type that implements IGetterSetter
 func AddTransientIGetterSetterWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("TRANSIENT - with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddTransientIGetterSetterByFunc adds a type by a custom func
 func AddTransientIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("TRANSIENT - by func", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientIGetterSetterByFuncWithMetadata adds a type by a custom func
 func AddTransientIGetterSetterByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("TRANSIENT - by func,with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddScopedIGetterSetter adds a type that implements IGetterSetter
 func AddScopedIGetterSetter(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SCOPED", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedIGetterSetterWithMetadata adds a type that implements IGetterSetter
 func AddScopedIGetterSetterWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SCOPED - with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddScopedIGetterSetterByFunc adds a type by a custom func
 func AddScopedIGetterSetterByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SCOPED - by func", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedIGetterSetterByFuncWithMetadata adds a type by a custom func
 func AddScopedIGetterSetterByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter)
+	_logAddIGetterSetter("SCOPED - by func,with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
@@ -154,87 +189,120 @@ func SafeGetManyIGetterSetterFromContainer(ctn di.Container) ([]IGetterSetter, e
 // ReflectTypeIGetterSetter2 used when your service claims to implement IGetterSetter2
 var ReflectTypeIGetterSetter2 = di.GetInterfaceReflectType((*IGetterSetter2)(nil))
 
+func _getImplementedIGetterSetter2Names(implementedTypes ...reflect.Type) string {
+	builder := strings.Builder{}
+	for idx, implementedType := range implementedTypes {
+		builder.WriteString(implementedType.Name())
+		if idx < len(implementedTypes)-1 {
+			builder.WriteString(", ")
+		}
+	}
+	return builder.String()
+}
+
+func _logAddIGetterSetter2(scopeType string, implType reflect.Type, implementedTypes ...reflect.Type) {
+	log.Info().
+		Str("DI", scopeType).
+		Str("Implemented_Interfaces", _getImplementedIGetterSetter2Names(implementedTypes...)).
+		Str("backing", implType.Elem().String()).
+		Send()
+}
+
 // AddSingletonIGetterSetter2 adds a type that implements IGetterSetter2
 func AddSingletonIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON", implType, implementedTypes...)
 	di.AddSingleton(builder, implType, implementedTypes...)
 }
 
 // AddSingletonIGetterSetter2WithMetadata adds a type that implements IGetterSetter2
 func AddSingletonIGetterSetter2WithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON - with metadata", implType, implementedTypes...)
 	di.AddSingletonWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddSingletonIGetterSetter2ByObj adds a prebuilt obj
 func AddSingletonIGetterSetter2ByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON - by obj", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonIGetterSetter2ByObjWithMetadata adds a prebuilt obj
 func AddSingletonIGetterSetter2ByObjWithMetadata(builder *di.Builder, obj interface{}, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON - by obj,with metadata", reflect.TypeOf(obj), implementedTypes...)
 	di.AddSingletonWithImplementedTypesByObjWithMetadata(builder, obj, metaData, implementedTypes...)
 }
 
 // AddSingletonIGetterSetter2ByFunc adds a type by a custom func
 func AddSingletonIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON - by func", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddSingletonIGetterSetter2ByFuncWithMetadata adds a type by a custom func
 func AddSingletonIGetterSetter2ByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SINGLETON - by func,with metadata", implType, implementedTypes...)
 	di.AddSingletonWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddTransientIGetterSetter2 adds a type that implements IGetterSetter2
 func AddTransientIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("TRANSIENT", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientIGetterSetter2WithMetadata adds a type that implements IGetterSetter2
 func AddTransientIGetterSetter2WithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("TRANSIENT - with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddTransientIGetterSetter2ByFunc adds a type by a custom func
 func AddTransientIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("TRANSIENT - by func", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientIGetterSetter2ByFuncWithMetadata adds a type by a custom func
 func AddTransientIGetterSetter2ByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("TRANSIENT - by func,with metadata", implType, implementedTypes...)
 	di.AddTransientWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddScopedIGetterSetter2 adds a type that implements IGetterSetter2
 func AddScopedIGetterSetter2(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SCOPED", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedIGetterSetter2WithMetadata adds a type that implements IGetterSetter2
 func AddScopedIGetterSetter2WithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SCOPED - with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddScopedIGetterSetter2ByFunc adds a type by a custom func
 func AddScopedIGetterSetter2ByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SCOPED - by func", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedIGetterSetter2ByFuncWithMetadata adds a type by a custom func
 func AddScopedIGetterSetter2ByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeIGetterSetter2)
+	_logAddIGetterSetter2("SCOPED - by func,with metadata", implType, implementedTypes...)
 	di.AddScopedWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
