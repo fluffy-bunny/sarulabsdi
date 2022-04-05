@@ -8,8 +8,6 @@ import (
 	"reflect"
 	"strings"
 	"sync"
-
-	"github.com/rs/zerolog/log"
 )
 
 // objectKey is used to mark objects.
@@ -267,33 +265,4 @@ func GenerateReproducableInterfaceKey(in interface{}) string {
 }
 func GetInterfaceReflectType(i interface{}) reflect.Type {
 	return reflect.TypeOf(i).Elem()
-}
-
-type LogExtra struct {
-	Name  string
-	Value interface{}
-}
-
-func LogAddInterfaceType(scopeType string, implType reflect.Type, interfaces string, extra ...LogExtra) {
-	infoEvent := log.Info().
-		Str("DI", scopeType).
-		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
-
-	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
-	}
-
-	infoEvent.Send()
-
-}
-func GetImplementedInterfaceTypeNames(implementedTypes ...reflect.Type) string {
-	builder := strings.Builder{}
-	for idx, implementedType := range implementedTypes {
-		builder.WriteString(implementedType.Name())
-		if idx < len(implementedTypes)-1 {
-			builder.WriteString(", ")
-		}
-	}
-	return builder.String()
 }
