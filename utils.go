@@ -10,7 +10,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/olekukonko/tablewriter"
+	"github.com/jedib0t/go-pretty/v6/table"
 )
 
 // objectKey is used to mark objects.
@@ -271,14 +271,17 @@ func GetInterfaceReflectType(i interface{}) reflect.Type {
 }
 
 func Dump(cnt Container) {
+	t := table.NewWriter()
+	t.SetTitle("DI Registrations")
+	t.SetOutputMirror(os.Stdout)
+	t.AppendHeader(table.Row{"#", "Implementation", "Scope", "Interface(s)"})
 
-	data := [][]string{}
 	count := 0
 	for _, def := range cnt.Definitions() {
 		if def.Type == nil {
 			continue
 		}
-		typeName := fmt.Sprintf("%d|%s", count, def.Type.String())
+		typeName := def.Type.String()
 		scope := ""
 		switch def.Scope {
 		case App:
@@ -289,26 +292,21 @@ func Dump(cnt Container) {
 		case Request:
 			scope = "Scoped"
 		}
-		scope = fmt.Sprintf("%d|%s", count, scope)
 
+		sb := strings.Builder{}
 		for it := range def.ImplementedTypes {
 			itName := it.Name()
 			if itName == "" {
 				itName = "object"
 			}
-			itName = fmt.Sprintf("%d|%s", count, itName)
-			row := []string{
-				typeName, scope, itName,
-			}
-			data = append(data, row)
+
+			sb.WriteString(fmt.Sprintf("%s\n", itName))
 		}
+		t.AppendRow([]interface{}{fmt.Sprintf("%d", count), typeName, scope, sb.String()})
+		t.AppendSeparator()
 		count++
 
 	}
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"impelmentation", "scope", "interface(s)"})
-	table.SetAutoMergeCells(true)
-	table.AppendBulk(data)
-	table.Render()
+	t.Render()
 
 }
