@@ -2,11 +2,9 @@ package genny
 
 import (
 	"reflect"
-	"strings"
 
 	"github.com/cheekybits/genny/generic"
 	di "github.com/fluffy-bunny/sarulabsdi"
-	"github.com/rs/zerolog/log"
 )
 
 // InterfaceType ...
@@ -15,120 +13,192 @@ type InterfaceType generic.Type
 // ReflectTypeInterfaceType used when your service claims to implement InterfaceType
 var ReflectTypeInterfaceType = di.GetInterfaceReflectType((*InterfaceType)(nil))
 
-func _getImplementedInterfaceTypeNames(implementedTypes ...reflect.Type) string {
-	builder := strings.Builder{}
-	for idx, implementedType := range implementedTypes {
-		builder.WriteString(implementedType.Name())
-		if idx < len(implementedTypes)-1 {
-			builder.WriteString(", ")
-		}
-	}
-	return builder.String()
-}
-
-func _logAddInterfaceType(scopeType string, implType reflect.Type, implementedTypes ...reflect.Type) {
-	log.Info().
-		Str("DI", scopeType).
-		Str("Implemented_Interfaces", _getImplementedInterfaceTypeNames(implementedTypes...)).
-		Str("backing", implType.Elem().String()).
-		Send()
-}
-
 // AddSingletonInterfaceType adds a type that implements InterfaceType
 func AddSingletonInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON", implType, implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		})
 	di.AddSingleton(builder, implType, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeWithMetadata adds a type that implements InterfaceType
 func AddSingletonInterfaceTypeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON - with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
 	di.AddSingletonWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeByObj adds a prebuilt obj
 func AddSingletonInterfaceTypeByObj(builder *di.Builder, obj interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON - by obj", reflect.TypeOf(obj), implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", reflect.TypeOf(obj), di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "obj",
+		})
 	di.AddSingletonWithImplementedTypesByObj(builder, obj, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeByObjWithMetadata adds a prebuilt obj
 func AddSingletonInterfaceTypeByObjWithMetadata(builder *di.Builder, obj interface{}, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON - by obj,with metadata", reflect.TypeOf(obj), implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", reflect.TypeOf(obj), di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "obj",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
+
 	di.AddSingletonWithImplementedTypesByObjWithMetadata(builder, obj, metaData, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeByFunc adds a type by a custom func
 func AddSingletonInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON - by func", implType, implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		})
 	di.AddSingletonWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddSingletonInterfaceTypeByFuncWithMetadata adds a type by a custom func
 func AddSingletonInterfaceTypeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SINGLETON - by func,with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("SINGLETON", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
+
 	di.AddSingletonWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddTransientInterfaceType adds a type that implements InterfaceType
 func AddTransientInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("TRANSIENT", implType, implementedTypes...)
+	di.LogAddInterfaceType("TRANSIENT", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		})
+
 	di.AddTransientWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddTransientInterfaceTypeWithMetadata adds a type that implements InterfaceType
 func AddTransientInterfaceTypeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("TRANSIENT - with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("TRANSIENT", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
+
 	di.AddTransientWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddTransientInterfaceTypeByFunc adds a type by a custom func
 func AddTransientInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("TRANSIENT - by func", implType, implementedTypes...)
+	di.LogAddInterfaceType("TRANSIENT", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		})
+
 	di.AddTransientWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddTransientInterfaceTypeByFuncWithMetadata adds a type by a custom func
 func AddTransientInterfaceTypeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("TRANSIENT - by func,with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("TRANSIENT", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
+
 	di.AddTransientWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
 // AddScopedInterfaceType adds a type that implements InterfaceType
 func AddScopedInterfaceType(builder *di.Builder, implType reflect.Type, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SCOPED", implType, implementedTypes...)
+	di.LogAddInterfaceType("SCOPED", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		})
 	di.AddScopedWithImplementedTypes(builder, implType, implementedTypes...)
 }
 
 // AddScopedInterfaceTypeWithMetadata adds a type that implements InterfaceType
 func AddScopedInterfaceTypeWithMetadata(builder *di.Builder, implType reflect.Type, metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SCOPED - with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("SCOPED", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "type",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
 	di.AddScopedWithImplementedTypesWithMetadata(builder, implType, metaData, implementedTypes...)
 }
 
 // AddScopedInterfaceTypeByFunc adds a type by a custom func
 func AddScopedInterfaceTypeByFunc(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SCOPED - by func", implType, implementedTypes...)
+	di.LogAddInterfaceType("SCOPED", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		})
 	di.AddScopedWithImplementedTypesByFunc(builder, implType, build, implementedTypes...)
 }
 
 // AddScopedInterfaceTypeByFuncWithMetadata adds a type by a custom func
 func AddScopedInterfaceTypeByFuncWithMetadata(builder *di.Builder, implType reflect.Type, build func(ctn di.Container) (interface{}, error), metaData map[string]interface{}, implementedTypes ...reflect.Type) {
 	implementedTypes = append(implementedTypes, ReflectTypeInterfaceType)
-	_logAddInterfaceType("SCOPED - by func,with metadata", implType, implementedTypes...)
+	di.LogAddInterfaceType("SCOPED", implType, di.GetImplementedInterfaceTypeNames(implementedTypes...),
+		di.LogExtra{
+			Name:  "DI-BY",
+			Value: "func",
+		},
+		di.LogExtra{
+			Name:  "DI-M",
+			Value: metaData,
+		})
+
 	di.AddScopedWithImplementedTypesByFuncWithMetadata(builder, implType, build, metaData, implementedTypes...)
 }
 
