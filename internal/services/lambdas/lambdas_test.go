@@ -23,6 +23,8 @@ func TestManyHashLambdas(t *testing.T) {
 	contracts_lambdas_jsonhash.AddHashFunc(builder)
 	contracts_lambdas_recursivedeephash.AddHashFunc(builder)
 	app := builder.Build()
+	di.Dump(app)
+
 	require.NotNil(t, app)
 	hashFunc, err := contracts_lambdas_hasher.SafeGetHashFromContainer(app)
 	require.NoError(t, err)

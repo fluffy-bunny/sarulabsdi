@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"os"
 	"reflect"
 	"strings"
 	"sync"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 // objectKey is used to mark objects.
@@ -265,4 +268,47 @@ func GenerateReproducableInterfaceKey(in interface{}) string {
 }
 func GetInterfaceReflectType(i interface{}) reflect.Type {
 	return reflect.TypeOf(i).Elem()
+}
+
+func Dump(cnt Container) {
+
+	data := [][]string{}
+	count := 0
+	for _, def := range cnt.Definitions() {
+		if def.Type == nil {
+			continue
+		}
+		typeName := fmt.Sprintf("%d|%s", count, def.Type.String())
+		scope := ""
+		switch def.Scope {
+		case App:
+			scope = "Singleton"
+			if def.Unshared {
+				scope = "Transient"
+			}
+		case Request:
+			scope = "Scoped"
+		}
+		scope = fmt.Sprintf("%d|%s", count, scope)
+
+		for it := range def.ImplementedTypes {
+			itName := it.Name()
+			if itName == "" {
+				itName = "object"
+			}
+			itName = fmt.Sprintf("%d|%s", count, itName)
+			row := []string{
+				typeName, scope, itName,
+			}
+			data = append(data, row)
+		}
+		count++
+
+	}
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"impelmentation", "scope", "interface(s)"})
+	table.SetAutoMergeCells(true)
+	table.AppendBulk(data)
+	table.Render()
+
 }

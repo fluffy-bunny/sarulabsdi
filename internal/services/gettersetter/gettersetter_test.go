@@ -15,7 +15,9 @@ func TestTypedObjects_ReflectBuilder_multi_interfaces_ByFunc(t *testing.T) {
 	b, _ := di.NewBuilder()
 	contracts_gettersetter.AddSingletonIGetterSetter(b, reflect.TypeOf(&getterSetterService{}), contracts_gettersetter.ReflectTypeIGetterSetter2)
 	var app = b.Build()
+	di.Dump(app)
 	subApp, _ := app.SubContainer()
+	di.Dump(subApp)
 
 	getterSetter := contracts_gettersetter.GetIGetterSetterFromContainer(app)
 	require.NotNil(t, getterSetter)
@@ -49,6 +51,7 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByFunc(t *testing.T)
 
 	var app = b.Build()
 	app, _ = app.SubContainer()
+	di.Dump(app)
 	// get the type of the object we want to retrieve
 	rt := reflect.TypeOf(&getterSetterContainer{})
 
@@ -103,6 +106,7 @@ func TestTypedObjects_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *testing.T) 
 	// The last object added
 
 	var app = b.Build()
+	di.Dump(app)
 
 	// get the type of the object we want to retrieve
 	rt := reflect.TypeOf(&getterSetterContainer{})
@@ -152,6 +156,8 @@ func TestTypedObjects_SCOPED_ReflectBuilder_ManyAdded_OneRetrieved_ByObj(t *test
 	// The last object added
 
 	app := b.Build()
+	di.Dump(app)
+
 	request, err := app.SubContainer()
 	require.NoError(t, err)
 	// get the type of the object we want to retrieve
