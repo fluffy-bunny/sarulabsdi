@@ -6,7 +6,7 @@ require (
 	github.com/cheekybits/genny v1.0.0
 	github.com/fatih/structtag v1.2.0
 	github.com/golang/mock v1.6.0
-	github.com/jedib0t/go-pretty/v6 v6.3.0
+	github.com/jedib0t/go-pretty/v6 v6.3.1
 	github.com/panospet/recursive-deep-hash v0.0.0-20210223103211-bd131c485fab
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.7.1
