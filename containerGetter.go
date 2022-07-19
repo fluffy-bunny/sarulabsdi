@@ -79,10 +79,16 @@ func (g *containerGetter) GetDefinitionByType(ctn *container, rt reflect.Type) *
 
 }
 
+var rtIContainer = reflect.TypeOf((*Container)(nil)).Elem()
+
 func (g *containerGetter) SafeGetByType(ctn *container, rtIn reflect.Type) (interface{}, error) {
 	rt := rtIn
 	if rt.Kind() == reflect.Ptr {
 		rt = rt.Elem()
+	}
+	containerRequested := rtIContainer == rt
+	if containerRequested {
+		return ctn, nil
 	}
 	defs, ok := ctn.typeDefMap[rt]
 	if ok {
