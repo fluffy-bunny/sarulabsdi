@@ -12,10 +12,15 @@ type (
 		Value int
 	}
 	getterSetterContainer struct {
+		Container     di.Container                           `inject:""`
 		GetterSetter  contracts_gettersetter.IGetterSetter   `inject:""`
 		GetterSetters []contracts_gettersetter.IGetterSetter `inject:""`
 	}
 )
+
+func (s *getterSetterContainer) Ctor() {
+
+}
 
 // BuildBreak is here to stop the compile becuase getterSetterService doesn't implement IGetterSetter
 // a NewGetterSetter would work, but that is not how these objects are to be instantiated
