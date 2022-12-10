@@ -408,4 +408,11 @@ func (m *mockObjectWithCtor) Close() {
    // called when the container is torn down
 }
 ```
+## IService Provider ish
 
+You can inject the current container that was used to get your object.  
+This is useful if you need to dynamically request an object from the contain without injecting that object.  There may sometimes be circular references during a startup.
+
+```go
+Container           di.Container                                                   `inject:""`
+```
