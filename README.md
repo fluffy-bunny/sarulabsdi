@@ -28,7 +28,7 @@ Using a scoped container will ONLY give you defs that are scoped, singleton and 
 ### Use case
 I want to register a bunch of HTTP handlers and I store the path ```/cars/:id``` in the metadata of the object that can services that request.  
 
-I then fetch all the defs that implement the ``IHandler``` type and do a mapping of; 
+I then fetch all the defs that implement the ```IHandler``` type and do a mapping of; 
 
 map[string]string   =>  path->def.Name  
 I then Get the object by name and NOT type.
