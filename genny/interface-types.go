@@ -1,12 +1,13 @@
 package genny
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
 	"github.com/cheekybits/genny/generic"
 	di "github.com/fluffy-bunny/sarulabsdi"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // InterfaceType ...
@@ -264,17 +265,17 @@ type _logInterfaceTypeExtra struct {
 }
 
 func _logAddInterfaceType(scopeType string, implType reflect.Type, interfaces string, extra ..._logInterfaceTypeExtra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedInterfaceTypeNames(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}
