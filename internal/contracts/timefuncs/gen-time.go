@@ -5,11 +5,12 @@
 package timefuncs
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // ReflectTypeITime used when your service claims to implement ITime
@@ -264,17 +265,17 @@ type _logITimeExtra struct {
 }
 
 func _logAddITime(scopeType string, implType reflect.Type, interfaces string, extra ..._logITimeExtra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedITimeNames(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}

@@ -5,11 +5,12 @@
 package something
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // ReflectTypeISomething used when your service claims to implement ISomething
@@ -264,17 +265,17 @@ type _logISomethingExtra struct {
 }
 
 func _logAddISomething(scopeType string, implType reflect.Type, interfaces string, extra ..._logISomethingExtra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedISomethingNames(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}
@@ -539,17 +540,17 @@ type _logISomething2Extra struct {
 }
 
 func _logAddISomething2(scopeType string, implType reflect.Type, interfaces string, extra ..._logISomething2Extra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedISomething2Names(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}
@@ -814,17 +815,17 @@ type _logISomething3Extra struct {
 }
 
 func _logAddISomething3(scopeType string, implType reflect.Type, interfaces string, extra ..._logISomething3Extra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedISomething3Names(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}

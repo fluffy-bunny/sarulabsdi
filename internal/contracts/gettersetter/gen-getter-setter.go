@@ -5,11 +5,12 @@
 package gettersetter
 
 import (
+	"context"
 	"reflect"
 	"strings"
 
 	di "github.com/fluffy-bunny/sarulabsdi"
-	"github.com/rs/zerolog/log"
+	"github.com/rs/zerolog"
 )
 
 // ReflectTypeIGetterSetter used when your service claims to implement IGetterSetter
@@ -264,17 +265,17 @@ type _logIGetterSetterExtra struct {
 }
 
 func _logAddIGetterSetter(scopeType string, implType reflect.Type, interfaces string, extra ..._logIGetterSetterExtra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedIGetterSetterNames(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}
@@ -539,17 +540,17 @@ type _logIGetterSetter2Extra struct {
 }
 
 func _logAddIGetterSetter2(scopeType string, implType reflect.Type, interfaces string, extra ..._logIGetterSetter2Extra) {
-	infoEvent := log.Info().
+	log := zerolog.Ctx(context.Background()).With().Logger()
+	log = log.With().
 		Str("DI", scopeType).
 		Str("DI-I", interfaces).
-		Str("DI-B", implType.Elem().String())
+		Str("DI-B", implType.Elem().String()).Logger()
 
 	for _, extra := range extra {
-		infoEvent = infoEvent.Interface(extra.Name, extra.Value)
+		log = log.With().Interface(extra.Name, extra.Value).Logger()
 	}
 
-	infoEvent.Send()
-
+	log.Info().Send()
 }
 func _getImplementedIGetterSetter2Names(implementedTypes ...reflect.Type) string {
 	builder := strings.Builder{}
