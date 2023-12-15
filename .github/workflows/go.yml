@@ -2,52 +2,51 @@ name: Go
 
 on:
   push:
-    branches: [ '**' ]
+    branches: ["**"]
     paths-ignore:
-      - 'README.md'
-      - 'docs/**'
-      - '.github/dependabot.yml'
+      - "README.md"
+      - "docs/**"
+      - ".github/dependabot.yml"
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: "^1.17"
+      - uses: actions/checkout@v3
 
-    - name: Install genny
-      run: |
-        go install github.com/cheekybits/genny@latest
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.21"
 
-    - name: Install Mockgen
-      run: |
-        go install github.com/golang/mock/mockgen@latest
+      - name: Install genny
+        run: |
+          go install github.com/cheekybits/genny@latest
 
-    - name: GO GENERATE
-      run: |
-        go generate -x ./...
+      - name: Install Mockgen
+        run: |
+          go install github.com/golang/mock/mockgen@latest
 
-    - name: Build
-      run: go build -v ./...
+      - name: GO GENERATE
+        run: |
+          go generate -x ./...
 
-    - name: Test
-      run: go test -v ./...
-      
-    - name: Generate coverage report
-      run: go test -cover -coverprofile="c.out" ./... && go tool cover -html="c.out" -o coverage.html
+      - name: Build
+        run: go build -v ./...
 
-    - name: Upload coverage report
-      uses: actions/upload-artifact@v2
-      with:
-        name: coverage-report
-        path: coverage.html
+      - name: Test
+        run: go test -v ./...
+
+      - name: Generate coverage report
+        run: go test -cover -coverprofile="c.out" ./... && go tool cover -html="c.out" -o coverage.html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-report
+          path: coverage.html
 
   release:
     runs-on: ubuntu-latest
@@ -55,40 +54,40 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: "^1.17"
-    
-    - name: Install genny
-      run: |
-        go install github.com/cheekybits/genny@latest
+      - uses: actions/checkout@v3
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.17"
 
-    - name: Install Mockgen
-      run: |
-        go install github.com/golang/mock/mockgen@latest
+      - name: Install genny
+        run: |
+          go install github.com/cheekybits/genny@latest
 
-    - name: GO GENERATE
-      run: |
-        go generate -x ./...
+      - name: Install Mockgen
+        run: |
+          go install github.com/golang/mock/mockgen@latest
 
-     # NOTE: This will NOT trigger another run of the workflow
-    - name: AutoCommit
-      uses: stefanzweifel/git-auto-commit-action@v4.14.0
-      with:
-        commit_message: Apply Protoc Changes
-    - name: Bump version and push tag
-      id: tag_version
-      uses: mathieudutour/github-tag-action@v6.0
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        
-    - name: Create a GitHub release
-      uses: actions/create-release@v1
-      env:
+      - name: GO GENERATE
+        run: |
+          go generate -x ./...
+
+        # NOTE: This will NOT trigger another run of the workflow
+      - name: AutoCommit
+        uses: stefanzweifel/git-auto-commit-action@v4.14.0
+        with:
+          commit_message: Apply Protoc Changes
+      - name: Bump version and push tag
+        id: tag_version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create a GitHub release
+        uses: actions/create-release@v1
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
+        with:
           tag_name: ${{ steps.tag_version.outputs.new_tag }}
           release_name: Release ${{ steps.tag_version.outputs.new_tag }}
           body: ${{ steps.tag_version.outputs.changelog }}
