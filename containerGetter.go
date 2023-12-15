@@ -3,6 +3,9 @@ package di
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/gogo/status"
+	"google.golang.org/grpc/codes"
 )
 
 // buildingChan is used internally as the value of an object while it is being built.
@@ -148,7 +151,7 @@ func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]
 	var result []interface{}
 	defs, ok := ctn.typeDefMap[rt]
 	if !ok {
-		return result, fmt.Errorf("could not get types of `%s` because the definition does not exist", getTypeFullPath(rt))
+		return result, status.Errorf(codes.NotFound, "could not get types of `%s` because the definition does not exist", getTypeFullPath(rt))
 	}
 	for _, def := range defs {
 		obj, err := g.SafeGet(ctn, def.Name)
@@ -163,14 +166,11 @@ func (g *containerGetter) SafeGetManyByType(ctn *container, rt reflect.Type) ([]
 func (g *containerGetter) SafeGet(ctn *container, name string) (interface{}, error) {
 	def, ok := ctn.definitions[name]
 	if !ok {
-		return nil, fmt.Errorf("could not get `%s` because the definition does not exist", name)
+		return nil, status.Errorf(codes.NotFound, "could not get `%s` because the definition does not exist", name)
 	}
 
 	if ctn.builtList.HasDef(name) {
-		return nil, fmt.Errorf(
-			"could not get `%s` because there is a cycle in the object definitions (%v)",
-			def.Name, ctn.builtList.OrderedList(),
-		)
+		return nil, status.Errorf(codes.NotFound, "could not get `%s` because there is a cycle in the object definitions (%v)", def.Name, ctn.builtList.OrderedList())
 	}
 
 	if ctn.scope != def.Scope {
@@ -184,9 +184,8 @@ func (g *containerGetter) getInParent(ctn *container, def Def) (interface{}, err
 	p := ctn.containerLineage.parent(ctn)
 
 	if p.containerCore == nil {
-		return nil, fmt.Errorf(
-			"could not get `%s` because it requires `%s` scope which does not match this container scope or any of its parents scope",
-			def.Name, def.Scope,
+		return nil, status.Errorf(codes.InvalidArgument,
+			"could not get `%s` because it requires `%s` scope which does not match this container scope or any of its parents scope", def.Name, def.Scope,
 		)
 	}
 
@@ -202,7 +201,7 @@ func (g *containerGetter) getInThisContainer(ctn *container, def Def) (interface
 
 	if ctn.closed {
 		ctn.m.Unlock()
-		return nil, fmt.Errorf("could not get `%s` because the container has been deleted", def.Name)
+		return nil, status.Errorf(codes.NotFound, "could not get `%s` because the container has been deleted", def.Name)
 	}
 
 	objKey := objectKey{defName: def.Name}
@@ -266,7 +265,7 @@ func (g *containerGetter) buildInThisContainer(ctn *container, def Def, objKey o
 		ctn.m.Unlock()
 		close(c)
 		err = ctn.containerSlayer.closeObject(obj, def)
-		return nil, fmt.Errorf(
+		return nil, status.Errorf(codes.NotFound,
 			"could not get `%s` because the container has been deleted, the object has been created and closed%s",
 			def.Name, g.formatCloseErr(err),
 		)
@@ -289,7 +288,7 @@ func (g *containerGetter) formatCloseErr(err error) string {
 func (g *containerGetter) build(ctn *container, def Def, objKey objectKey) (obj interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			err = fmt.Errorf("could not build `%s` because the build function panicked: %+v", def.Name, r)
+			err = status.Errorf(codes.Internal, "could not build `%s` because the build function panicked: %+v", def.Name, r)
 		}
 	}()
 
@@ -299,7 +298,7 @@ func (g *containerGetter) build(ctn *container, def Def, objKey objectKey) (obj 
 	})
 
 	if err != nil {
-		return nil, fmt.Errorf("could not build `%s`: %+v", def.Name, err)
+		return nil, status.Errorf(codes.Internal, "could not build `%s`: %+v", def.Name, err)
 	}
 
 	return obj, nil
