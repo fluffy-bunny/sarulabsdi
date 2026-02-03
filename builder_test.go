@@ -211,3 +211,135 @@ func TestBuild(t *testing.T) {
 	require.Equal(t, App, app.Definitions()["o1"].Scope)
 	require.Equal(t, Request, app.Definitions()["o2"].Scope)
 }
+
+func TestRemoveAllByTypeT_WithInterface(t *testing.T) {
+	b, _ := NewBuilder()
+
+	obj := &TestStruct{
+		Name: "hello",
+	}
+	types := NewTypeSet()
+	inter := GetInterfaceReflectType((*ISomething)(nil))
+	types.Add(inter)
+
+	err := b.Add(Def{
+		Scope:            App,
+		Type:             rTypeTestStruct,
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj, nil
+		},
+	})
+	require.Nil(t, err)
+
+	// Remove by interface type using generic function
+	RemoveAllByTypeT[ISomething](b)
+	ctn := b.Build()
+
+	// Should not be able to get by interface type
+	obj2, err := ctn.SafeGetByType(inter)
+	require.Nil(t, obj2)
+	require.NotNil(t, err)
+
+	// Should still be able to get by concrete type since we only removed by interface
+	obj3, err := ctn.SafeGetByType(rTypeTestStruct)
+	require.NotNil(t, obj3)
+	require.Nil(t, err)
+}
+
+func TestRemoveAllByTypeT_WithConcreteType(t *testing.T) {
+	b, _ := NewBuilder()
+
+	obj := &TestStruct{
+		Name: "hello",
+	}
+
+	err := b.Add(Def{
+		Scope: App,
+		Type:  rTypeTestStruct,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj, nil
+		},
+	})
+	require.Nil(t, err)
+
+	// Remove by concrete type using generic function
+	RemoveAllByTypeT[*TestStruct](b)
+	ctn := b.Build()
+
+	obj2, err := ctn.SafeGetByType(rTypeTestStruct)
+	require.Nil(t, obj2)
+	require.NotNil(t, err)
+}
+
+type TestFunc func() string
+
+func TestRemoveAllByTypeT_WithFuncType(t *testing.T) {
+	b, _ := NewBuilder()
+
+	// Add a function type
+	testFunc := TestFunc(func() string {
+		return "test"
+	})
+
+	AddFunc(b, testFunc)
+
+	// Verify it was added
+	ctn := b.Build()
+	funcType := reflect.TypeOf(testFunc)
+	obj, err := ctn.SafeGetByType(funcType)
+	require.Nil(t, err)
+	require.NotNil(t, obj)
+
+	// Now remove using generic function with function type
+	b2, _ := NewBuilder()
+	AddFunc(b2, testFunc)
+
+	RemoveAllByTypeT[TestFunc](b2)
+	ctn2 := b2.Build()
+
+	obj2, err2 := ctn2.SafeGetByType(funcType)
+	require.Nil(t, obj2)
+	require.NotNil(t, err2)
+}
+
+func TestRemoveAllByTypeT_WithMultipleInstances(t *testing.T) {
+	b, _ := NewBuilder()
+
+	obj1 := &TestStruct{Name: "first"}
+	obj2 := &TestStruct{Name: "second"}
+
+	types := NewTypeSet()
+	inter := GetInterfaceReflectType((*ISomething)(nil))
+	types.Add(inter)
+
+	// Add multiple instances with same interface
+	b.Add(Def{
+		Scope:            App,
+		Type:             rTypeTestStruct,
+		ImplementedTypes: types,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj1, nil
+		},
+	})
+
+	types2 := NewTypeSet()
+	types2.Add(inter)
+	b.Add(Def{
+		Scope:            App,
+		Type:             rTypeTestStruct,
+		ImplementedTypes: types2,
+		Build: func(ctn Container) (interface{}, error) {
+			return obj2, nil
+		},
+	})
+
+	// Remove all by interface type
+	RemoveAllByTypeT[ISomething](b)
+	ctn := b.Build()
+
+	// Should not be able to get any instances by interface
+	objs, err := ctn.SafeGetManyByType(inter)
+	require.NotNil(t, err)
+	require.Nil(t, objs)
+}

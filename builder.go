@@ -210,6 +210,21 @@ func (b *Builder) RemoveAllByType(rType reflect.Type) {
 	b.definitions = defMap
 }
 
+func RemoveAllByTypeT[T any](b *Builder) {
+	var zero T
+	rType := reflect.TypeOf(zero)
+
+	// Check if T is a function type
+	if rType != nil && rType.Kind() == reflect.Func {
+		// For function types, get the type directly from the zero value
+		rType = reflect.TypeOf((*T)(nil)).Elem()
+	} else {
+		// For interface/struct types, use GetInterfaceReflectType
+		rType = GetInterfaceReflectType((*T)(nil))
+	}
+	b.RemoveAllByType(rType)
+}
+
 // Set is a shortcut to add a definition for an already built object.
 func (b *Builder) Set(name string, obj interface{}) error {
 	return b.add(Def{
